@@ -4,8 +4,16 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+
+	$db = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
+    if(!$db){
+        $errormessage=pg_last_error();
+        echo "Error: " . $errormessage;
+        exit();
+    }
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -46,6 +54,8 @@
 	$localidad = $_POST['localidad'];
 	$tipo_accion = $_POST['tipo_accion'];
 		
+
+
 	// revisa si todos los campos han sido definidos por el usuario
 	// si estan completos, realizar los inserts
 	// si no estan completos (algun campo esta faltando), regresar error
@@ -65,17 +75,30 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT id_region as id_region_FK
-				  FROM paleo_fcb.t_region
+		$query = "SELECT id_region as id_region_fk
+				  FROM t_region
 				  WHERE region = '$region';";
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_region_FK= $data->id_region_fk;
+			}
+
+
+
+		/*if ($stmt
+
+
+		 = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_region_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_region_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// **********
 		// pais
@@ -83,17 +106,26 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT id_pais as id_pais_FK
-				  FROM paleo_fcb.t_pais
+		$query = "SELECT id_pais as id_pais_fk
+				  FROM t_pais
 				  WHERE pais = '$pais';";
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_pais_FK= $data->id_pais_fk;
+			}
+				
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_pais_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_pais_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// **********
 		// estado
@@ -101,17 +133,25 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT id_estado as id_estado_FK
-				  FROM paleo_fcb.t_estado
+		$query = "SELECT id_estado as id_estado_fk
+				  FROM t_estado
 				  WHERE estado = '$estado';";
-		if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_estado_FK= $data->id_estado_fk;
+			}
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_estado_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_estado_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 
 		// **********
@@ -121,27 +161,43 @@
 
 		// en dado caso que el valor NO este en el combo box
 		// y se tenga que agregar una nueva entrada
-		if ($municipio=="NULL" & $municipio_texto!="NULL"){
+		if ($municipio=="NULL" && $municipio_texto!="NULL"){
+
+		
 			$municipio=$municipio_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
 			$query = "SELECT MAX(id_municipio_prov) as id_municipio 
-					FROM paleo_fcb.t_municipioprov";
-			if ($stmt = $con->prepare($query)) {
+					FROM t_municipioprov";
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_municipio= $data->id_municipio;
+			}	
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_municipio);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_municipio);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada
+		
 			$id_municipio_FK = $id_municipio + 1;
-			$query = "INSERT INTO paleo_fcb.t_municipioprov 
+			$query = "INSERT INTO t_municipioprov 
 					VALUES ('$id_municipio_FK','$municipio')";
-			if ($stmt = $con->prepare($query)) {
+
+			$result = pg_query($db,$query);
+	
+					
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}					
+			}	*/				
 		}	
 
 
@@ -153,58 +209,87 @@
 
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT id_municipio_prov as id_municipio_FK
-				FROM paleo_fcb.t_municipioprov
+		$query = "SELECT id_municipio_prov as id_municipio_fk
+				FROM t_municipioprov
 				WHERE municipio_prov = '$municipio'
-				GROUP BY municipio_prov
+				GROUP BY municipio_prov,id_municipio_prov
 				ORDER BY municipio_prov;";
-		if ($stmt = $con->prepare($query)) {
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_municipio_FK= $data->id_municipio_fk;
+			}	
+
+
+
+		/**if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_municipio_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_municipio_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// **********
 		// tabla ubicacion
 		// **********		
 
 		// sacar la PK
-		$query = "SELECT MAX(id_ubicacion) as id_ubicacion_PK
-					FROM paleo_fcb.ubicacion;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(ubicacion.\"id_Ubicacion\") as id_ubicacion_pk
+					FROM ubicacion;";
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_ubicacion_PK= $data->id_ubicacion_pk;
+			}	
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_ubicacion_PK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_ubicacion_PK);
 			}				
 			$stmt->close();
-		}
+		}*/
+
+
 		$id_ubicacion_PK = check_key($id_ubicacion_PK);
 		// insertar los valores en tabla
-		$query = "INSERT INTO paleo_fcb.ubicacion 
+		$query = "INSERT INTO ubicacion 
 				VALUES ('$id_ubicacion_PK','$id_region_FK',
 						'$id_pais_FK','$id_estado_FK',
 						'$id_municipio_FK','$localidad');";
-		if ($stmt = $con->prepare($query)) {
+
+					$result = @pg_query($db,$query);
+
+					
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 		}
-		
+		*/
 		// **********
 		// tabla ubicacion completa
 		// **********		
 
 		// insertar los valores en tabla
-		$query = "INSERT INTO paleo_fcb.ubicacion_completa 
+		$query = "INSERT INTO ubicacion_completa 
 				VALUES ('$id_region_FK',
 						'$id_pais_FK',
 						'$id_estado_FK',
 						'$id_municipio_FK');";
-		if ($stmt = $con->prepare($query)) {
+
+					
+		$result = @pg_query($db,$query);
+					
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
-		}
+		}*/
 		
 		// **********
 		// tabla hallazgo
@@ -216,26 +301,40 @@
 		if ($tipo_accion == 'continuar_ubicacion'){
 			$id_ReferenciaBibliografica_FK = $ID_REF;
 		}else{
-			$query = "SELECT MAX(id_ReferenciaBibliografica) 
-							as id_ReferenciaBibliografica_FK
-						FROM paleo_fcb.referenciabibliografica;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(referenciabibliografica.\"id_ReferenciaBibliografica\") 
+							as id_referenciabibliografica_fk
+						FROM referenciabibliografica;";
+
+			$qu = pg_query($db, $query);
+
+
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_ReferenciaBibliografica_FK= $data->id_referenciabibliografica_fk;
+			}	
+				
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_ReferenciaBibliografica_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_ReferenciaBibliografica_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// insertar los valores en tabla
-		$query = "INSERT INTO paleo_fcb.hallazgo 
+		$query = "INSERT INTO hallazgo 
 				VALUES ('$id_ubicacion_PK',
 						'$id_ReferenciaBibliografica_FK');";
-		if ($stmt = $con->prepare($query)) {
+
+				$result = @pg_query($db,$query);
+
+			
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
-		}
+		}*/
 			
 		// imprimir mensaje de salida 
 		echo "<br>";

@@ -137,6 +137,7 @@ FORMA DE CAPTURA
 		// en dado caso que el valor NO este en el combo box
 		// y se tenga que agregar una nueva entrada
 		if ($estado=="NULL" & $estado_texto!="NULL"){
+
 			$estado=$estado_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
@@ -151,15 +152,15 @@ FORMA DE CAPTURA
 			}
 
 
-
 			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_estado);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_estado);
 				}				
-				$stmt->close();
-			}*/
+				$stmt->close();*/
+			
+
 			// insertar nueva entrada
 			$id_estado_FK = $id_estado + 1;
 			$query = "INSERT INTO t_estado 
@@ -178,7 +179,7 @@ FORMA DE CAPTURA
 				$stmt->execute();
 			}					
 		}	*/
-	
+	}
 		// nombre que se imprime en html
 		$nombre_combo_box = '<b>3.</b> Estado:';
 		// define la variable
@@ -201,17 +202,30 @@ FORMA DE CAPTURA
 	
 	<?php
 		// sacar la FK del estado
-		$query = "SELECT id_estado as id_estado_FK
-				FROM paleo_fcb.t_estado
-				WHERE estado = '$estado';";		
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT id_estado as id_estado_fk
+				FROM t_estado
+				WHERE estado = '$estado';";	
+
+
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+  				$id_estado_FK= $data->id_estado_fk;
+			}
+
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_estado_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_estado_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// nombre que se imprime en html
 		$nombre_combo_box = '<b>4.a </b> Municipio:';
@@ -226,15 +240,28 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT paleo_fcb.t_municipioprov.municipio_prov as municipio
-				FROM paleo_fcb.ubicacion_completa, 
-					paleo_fcb.t_municipioprov
-				WHERE id_municipio_prov = Municipio_Provincia 
-					AND paleo_fcb.ubicacion_completa.estado = '$id_estado_FK'
+		$query = "SELECT t_municipioprov.municipio_prov as municipio
+				FROM ubicacion_completa, 
+					t_municipioprov
+				WHERE id_municipio_prov = ubicacion_completa.\"Municipio_Provincia\" 
+					AND ubicacion_completa.\"Estado\" = '$id_estado_FK'
 				GROUP BY municipio
 				ORDER BY municipio;";
+
+
+
+			$qu = pg_query($db, $query);
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value ='No Disponible'>No Disponible</option>";	
+			while ($data = pg_fetch_object($qu)) {
+  				$id_estado_FK= $data->municipio;
+  					
+  				if($result!='No Disponible'){echo "<option value = '".$data->municipio."'>".$data->municipio."</option>";} 
+
+			}
+			echo "</select>";
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -246,7 +273,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>';
 	?>	
 	<br><br>		
@@ -283,6 +310,8 @@ FORMA DE CAPTURA
 PIE DE PAGINA
 *********************************************************************-->
 
+<?php @pg_free_result($qu);
+pg_close($db); ?>
 <center>
 	<tr>
 	 <td colspan="2" style="text-align:center">
