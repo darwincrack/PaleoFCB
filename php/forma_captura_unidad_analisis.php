@@ -29,7 +29,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	<?php
 	
 		if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
@@ -39,7 +39,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		if ($tipo_accion =='continuar_sitio')
 		{
 			if(!isset($_POST['id_Ubicacion'])) {
-				died('We are sorry, but there appears to be a 
+				die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 			}
 			$id_Ubicacion = $_POST['id_Ubicacion'];
@@ -48,7 +48,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		require_once 'insertar_valores_sitio.php';
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];

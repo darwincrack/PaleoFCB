@@ -42,7 +42,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	<?php		
 		
 		if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		// define el mensaje de error
@@ -52,7 +52,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		if($tipo_accion != 'otra_esp'){
 			// validation expected data exists
 			if(!isset($_POST['tipo_edad'])) {
-				died('We are sorry, but there appears to be a 
+				die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 			}
 			
@@ -70,7 +70,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];

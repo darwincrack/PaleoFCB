@@ -35,7 +35,7 @@
 	if( !isset($_POST['referencia']) ||
 		!isset($_POST['anio']) ||
 		!isset($_POST['tipo_referencia'])) {
-		died('We are sorry, but there appears to be a problem 
+		die('We are sorry, but there appears to be a problem 
 			with the form you submitted.');		
 	}
 	// define el mensaje de error

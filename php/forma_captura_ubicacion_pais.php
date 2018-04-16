@@ -29,7 +29,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	<?php
 	
 		if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
@@ -37,7 +37,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		if ($tipo_accion =='continuar_ubicacion')
 		{
 			if(!isset($_POST['ID_REF'])) {
-				died('We are sorry, but there appears to be a 
+				die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 			}
 			// define el mensaje de error
@@ -51,7 +51,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		//echo $tipo_accion;
 		//echo $id_Ubicacion;
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];

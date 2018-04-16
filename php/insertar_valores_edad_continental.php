@@ -45,7 +45,7 @@
 		!isset($_POST['no_muestra']) ||
 		!isset($_POST['laboratorio']) ||
 		!isset($_POST['edad_unidad_analisis'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	// define el mensaje de error

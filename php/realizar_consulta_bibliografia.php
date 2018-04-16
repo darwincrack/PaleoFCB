@@ -49,7 +49,7 @@
 
 	// validation expected data exists
 	if(!isset($_POST['referencia'])) {
-		died('We are sorry, but there appears to be a problem with the form you submitted.');		
+		die('We are sorry, but there appears to be a problem with the form you submitted.');		
 	}
 	// define el mensaje de error
 	require_once 'error_message.php';

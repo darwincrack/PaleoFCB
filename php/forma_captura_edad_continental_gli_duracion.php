@@ -84,7 +84,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		}			
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];

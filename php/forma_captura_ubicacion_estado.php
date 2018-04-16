@@ -41,7 +41,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		$pais_texto = $_POST['pais_texto'];
 		
 				if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
@@ -49,7 +49,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		if ($tipo_accion =='continuar_ubicacion')
 		{
 			if(!isset($_POST['ID_REF'])) {
-				died('We are sorry, but there appears to be a 
+				die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 			}
 			// define el mensaje de error
@@ -59,7 +59,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		}
 		
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];

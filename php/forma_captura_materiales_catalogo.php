@@ -38,7 +38,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	
 		// validation expected data exists
 		if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a problem with the form you submitted.');		
+			die('We are sorry, but there appears to be a problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
 		
@@ -55,7 +55,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 			// Id_Especie
 			// validation expected data exists	
 			if(!isset($_POST['id_Especies'])) {
-				died('We are sorry, but there appears to be a problem with the form you submitted.');		
+				die('We are sorry, but there appears to be a problem with the form you submitted.');		
 			}
 			$id_Especies = $_POST['id_Especies'];	
 			//echo $id_Especies;
@@ -101,7 +101,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
