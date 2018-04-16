@@ -30,7 +30,7 @@ DESPLIEGUE DE INSTRUCCIONES
 		require_once 'instrucciones_nota_2.php';
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -292,8 +292,7 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_facies,facies,idf
 					FROM t_facies
-					GROUP BY facies
-					;";
+					GROUP BY facies ,id_facies  order by facies asc";
 
 		$result = pg_query($db,$query);
 		if (!$result) {
@@ -388,7 +387,7 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_formacion,formacion
 				FROM t_formacion
-				GROUP BY formacion;";
+				GROUP BY formacion ,id_formacion  order by formacion asc;";
 
 		$result = pg_query($db,$query);
 		if (!$result) {

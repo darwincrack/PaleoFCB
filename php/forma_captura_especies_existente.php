@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 
 <!--********************************************************************
@@ -101,13 +110,26 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_Especies, Clase, Orden, Familia, Genero, Especie, E.Autor 
-					FROM paleo_fcb.especies E LEFT JOIN t_clase C ON E.id_Clase = C.id_Clase 
-					                          LEFT JOIN t_familia F ON E.id_Familia = F.id_Familia
-											  LEFT JOIN t_orden O ON E.id_Orden = O.id_Orden
-					ORDER BY Clase, Orden, Familia, Genero, Especie ASC;";
+		$query = "SELECT especies.\"id_Especies\", t_clase.\"Clase\", t_orden.\"Orden\", especies.\"Genero\", especies.\"Especie\", especies.\"Autor\" 
+					FROM especies LEFT JOIN t_clase  ON especies.\"id_Clase\" = t_clase.\"id_Clase\" 
+					                          LEFT JOIN t_familia ON especies.\"id_Familia\" = t_familia.\"id_Familia\"
+											  LEFT JOIN t_orden  ON especies.\"id_Orden\" = t_orden.\"id_Orden\"
+					ORDER BY  t_clase.\"Clase\", t_orden.\"Orden\", t_familia.\"Familia\", especies.\"Genero\", especies.\"Especie\" ASC;";
 		 
-		if ($stmt = $con->prepare($query)) {
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{$id_Especies =$data->id_Especies;
+				if ($data->id_Especies!="" & $data->id_Especies!="NULL")
+				 {
+				echo "<option value = '".$data->id_Especies."'>".$data->Clase.' -> '.$data->Orden.' -> '.$data->Familia.' -> '.$data->Genero.' '.$data->Especie.' '.$data->Autor."</option>"; 
+				 }
+
+			}
+			 echo "</select>";	
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_Especies,$Clase,$Orden, $Familia, $Genero, $Especie, $Autor);
 			// add default
@@ -121,7 +143,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>
 
 </table>

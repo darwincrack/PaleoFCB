@@ -6,8 +6,17 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+/*	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+						$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -37,7 +46,7 @@
 	
 	
 	if(!isset($_POST['tipo_operacion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_operacion = $_POST['tipo_operacion'];
@@ -76,17 +85,28 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_Meristica) 
-					as id_meristica_FK 
-				FROM paleo_fcb.meristica;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(\"id_Meristica\") 
+					as id_meristica_fk 
+				FROM meristica;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_meristica_FK= $data->id_meristica_fk;
+		}
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_meristica_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_meristica_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// suma 1
 		$id_meristica_FK = check_key($id_meristica_FK);
 		
@@ -96,23 +116,33 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_MaterialesCatalogo) 
-					as id_materiales_catalogo_FK 
-				FROM paleo_fcb.materialescatalogo;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(\"id_MaterialesCatalogo\") 
+					as id_materiales_catalogo_fk 
+				FROM materialescatalogo;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_materiales_catalogo_FK= $data->id_materiales_catalogo_fk;
+		}
+		
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_materiales_catalogo_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_materiales_catalogo_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// ********************		
 		// insertar los valores
 		// ********************
 								
-		$query = "INSERT INTO paleo_fcb.meristica 
+		$query = "INSERT INTO meristica 
 				VALUES ('$id_meristica_FK',
 						'$id_materiales_catalogo_FK',
 						'$clave_medida',
@@ -120,9 +150,18 @@
 						'$medida',
 						'$unidades',						
 						'$notas_meristica');";
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
+
+				$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
 		}
+		
+
+	/*	if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
 		
 		// imprimir mensaje de salida 
 		echo "<br>";

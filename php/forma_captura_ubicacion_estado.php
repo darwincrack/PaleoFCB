@@ -156,13 +156,13 @@ FORMA DE CAPTURA
 			$query = "INSERT INTO t_pais 
 					VALUES ('$id_pais_FK','$pais')";
 
-			$result = pg_query($db,$query);
+			$result = @pg_query($db,$query);
 			if (!$result) {
-				die(
+				/*echo (
 				"<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
 				<br>
 				<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
-				);
+				);*/
 			}
 
 

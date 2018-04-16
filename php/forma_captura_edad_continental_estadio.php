@@ -9,8 +9,16 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+				$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -50,9 +58,18 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		{
 			// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 			$query = "SELECT id_glacialinterglacial as llave
-					  FROM paleo_fcb.t_glacialinterglacial
+					  FROM t_glacialinterglacial
 					  WHERE idgi = 'No Disponible';";
-			if ($stmt = $con->prepare($query)) {
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_glacial_interglacial_FK= $data->llave;
+			}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($llave);
 				while ($stmt->fetch()) {
@@ -60,7 +77,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 				}				
 				$stmt->close();
 			}
-			$id_glacial_interglacial_FK=$llave;	
+			$id_glacial_interglacial_FK=$llave;	*/
 		}
 
 
@@ -125,24 +142,35 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "
 				SELECT 
-					paleo_fcb.t_region.id_region as id_region_FK,
-					paleo_fcb.t_region.region as region
+					t_region.id_region as id_region_fk,
+					t_region.region as region
 				FROM 
-					paleo_fcb.t_region 
+					t_region 
 				WHERE 
-					paleo_fcb.t_region.id_region = 
+					t_region.id_region = 
 					(SELECT 
-						paleo_fcb.ubicacion.Region as id_region_FK 
+						ubicacion.\"Region\" as id_region_fk 
 					FROM 
-						paleo_fcb.ubicacion
+						ubicacion
 					WHERE
-						paleo_fcb.ubicacion.id_Ubicacion = 
+						ubicacion.\"id_Ubicacion\" = 
 						(SELECT 
-							MAX(paleo_fcb.hallazgo.id_ubicacion) 
+							MAX(hallazgo.id_ubicacion) 
 						FROM 
-							paleo_fcb.hallazgo));";
+							hallazgo));";
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_ubicacion_PK= $data->id_region_fk;
+			  echo "<option value = '".$data->id_region_fk."'>".$data->region."</option>"; 
+
+			}					
+		 	echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_region_FK,$region);
 			// add default
@@ -153,7 +181,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -178,8 +206,40 @@ FORMA DE CAPTURA
 		 echo '<td valign="top">';
 		 echo '<select name='.$variable_name.'>'; 
 
+
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
+						t_era.id_era as id_era_fk,
+						t_era.era as era
+					FROM 
+						t_era
+					WHERE 
+						id_era = $id_era_FK;";
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+				if ($data->era!="" & $data->era!="NULL")
+				 {
+			  		echo "<option value = '".$data->id_era_fk."'>".$data->era."</option>";
+			  	 } 
+
+			}					
+		 	echo "</select>"; 
+
+
+
+
+
+
+
+
+
+
+		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
+		/*$query = "SELECT 
 						paleo_fcb.t_era.id_era as id_era_FK,
 						paleo_fcb.t_era.era as era
 					FROM 
@@ -200,7 +260,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 	
 	<br><br>
@@ -225,13 +285,27 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_periodo.id_periodo as id_periodo_FK,
-						paleo_fcb.t_periodo.periodo as periodo
+						t_periodo.id_periodo as id_periodo_fk,
+						t_periodo.periodo as periodo
 					FROM 
-						paleo_fcb.t_periodo
+						t_periodo
 					WHERE 
 						id_periodo = $id_periodo_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+				if ($data->periodo!="" & $data->periodo!="NULL")
+				{
+					echo "<option value = '".$data->id_periodo_fk."'>".$data->periodo."</option>"; 
+				}
+			 
+			}					
+		 	echo "</select>"; 
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_periodo_FK,$periodo);
 			// add default
@@ -245,7 +319,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>		
 	
 	<br><br>
@@ -270,13 +344,31 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_epoca.id_epoca as id_epoca_FK,
-						paleo_fcb.t_epoca.epoca as epoca
+						t_epoca.id_epoca as id_epoca_fk,
+						t_epoca.epoca as epoca
 					FROM 
-						paleo_fcb.t_epoca
+						t_epoca
 					WHERE 
 						id_epoca = $id_epoca_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			if ($data->epoca!="" & $data->epoca!="NULL")
+			{
+				echo "<option value = '".$data->id_epoca_fk."'>".$data->epoca.''."</option>"; 
+
+			}
+
+
+		}	
+			 echo "</select>";
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_epoca_FK,$epoca);
 			// add default
@@ -290,7 +382,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>		
 	
 	<br><br>
@@ -338,13 +430,28 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_pisofaunistico.id_pisofaunistico as id_piso_faunistico_FK,
-						paleo_fcb.t_pisofaunistico.pisoFaunistico as piso_faunistico
+						t_pisofaunistico.id_pisofaunistico as id_piso_faunistico_fk,
+						t_pisofaunistico.\"pisoFaunistico\" as piso_faunistico
 					FROM 
-						paleo_fcb.t_pisofaunistico
+						t_pisofaunistico
 					WHERE 
 						id_pisofaunistico = $id_piso_faunistico_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+		  	if ($data->piso_faunistico!="" & $data->piso_faunistico!="NULL")
+				 {
+				echo "<option value = '".$data->id_piso_faunistico_fk."'>".$data->piso_faunistico.''."</option>"; 
+				 }
+
+		}	
+ 		echo "</select>"; 
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_piso_faunistico_FK,$piso_faunistico);
 			// add default
@@ -358,7 +465,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<br><br>
@@ -373,24 +480,46 @@ FORMA DE CAPTURA
 		if ($id_glacial_interglacial_FK=="NULL" & $glacial_interglacial!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_glacialinterglacial) as id_glacial_interglacial_FK 
-						FROM paleo_fcb.t_glacialinterglacial;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_glacialinterglacial) as id_glacial_interglacial_fk 
+						FROM t_glacialinterglacial;";
+
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_glacial_interglacial_FK= $data->id_glacial_interglacial_fk;
+			}		
+			
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_glacial_interglacial_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_glacial_interglacial_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_glacial_interglacial_FK = check_key($id_glacial_interglacial_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_glacialinterglacial 
+			$query = "INSERT INTO t_glacialinterglacial 
 						VALUES ('$id_glacial_interglacial_FK','$glacial_interglacial');";	
-			if ($stmt = $con->prepare($query)) {
+
+
+					$result = pg_query($db,$query);
+		if (!$result) {
+			echo
+			"<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+		
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		}
 		// nombre que se imprime en html
 		$nombre_combo_box = '<b>5.</b> Periodo Glacial: ';
@@ -406,13 +535,33 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_glacialinterglacial.id_glacialinterglacial as id_glacial_interglacial_FK,
-						paleo_fcb.t_glacialinterglacial.idgi as glacial_interglacial
+						t_glacialinterglacial.id_glacialinterglacial as id_glacial_interglacial_fk,
+						t_glacialinterglacial.idgi as glacial_interglacial
 					FROM 
-						paleo_fcb.t_glacialinterglacial
+						t_glacialinterglacial
 					WHERE 
 						id_glacialinterglacial = $id_glacial_interglacial_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+		  	if ($data->glacial_interglacial!="" & $data->glacial_interglacial!="NULL")
+				 {
+				echo "<option value = '".$data->id_glacial_interglacial_fk."'>".$data->glacial_interglacial.''."</option>"; 
+				 }
+
+		}	
+ 		echo "</select>"; 
+ 		
+
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_glacial_interglacial_FK,$glacial_interglacial);
 			// add default
@@ -426,7 +575,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 		
 	<br><br>
@@ -452,24 +601,43 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-					paleo_fcb.t_estadios.id_estadios as id_estadio_FK,
-					paleo_fcb.t_estadios.estadios as estadios
+					t_estadios.id_estadios as id_estadio_FK,
+					t_estadios.estadios as estadios
 				FROM 
-					paleo_fcb.t_estadios
+					t_estadios
 				WHERE 
 					id_estadios IN 
 					(SELECT DISTINCT 
-						paleo_fcb.glaciacionescompleta.estadio
+						glaciacionescompleta.estadio
 					FROM 
-						paleo_fcb.glaciacionescompleta
+						glaciacionescompleta
 					WHERE 
-						paleo_fcb.glaciacionescompleta.region = $id_region_FK
+						glaciacionescompleta.region = $id_region_FK
 					AND 
-						paleo_fcb.glaciacionescompleta.epoca = $id_epoca_FK
+						glaciacionescompleta.epoca = $id_epoca_FK
 					AND 
-						paleo_fcb.glaciacionescompleta.periodoGlacial = $id_glacial_interglacial_FK);";
+						glaciacionescompleta.periodoGlacial = $id_glacial_interglacial_FK);";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";	
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+		  if($data->estadios!='No Disponible')
+				 {
+				echo "<option value = '".$data->id_estadio_fk."'>".$data->estadios.''."</option>"; 
+				 }
+
+		}	
+ 		echo "</select>"; 
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_estadio_FK,$estadios);
 			// add default
@@ -483,7 +651,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>

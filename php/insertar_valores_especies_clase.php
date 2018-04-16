@@ -4,8 +4,16 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+					$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }	
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -25,7 +33,7 @@
 		!isset($_POST['clase_texto']) ||
 		!isset($_POST['clase_autor']) ||			
 		!isset($_POST['clase_anio'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	// define el mensaje de error
@@ -73,26 +81,44 @@
 			$clase=$clase_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Clase) as id_clase_FK 
-					FROM paleo_fcb.t_clase";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_Clase) as id_clase_fk
+					FROM t_clase";
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_clase_FK= $data->id_clase_fk;
+		}
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_clase_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_clase_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada
 			$id_clase_FK = check_key($id_clase_FK);
-			$query = "INSERT INTO paleo_fcb.t_clase 
+			$query = "INSERT INTO t_clase 
 					VALUES ('$id_clase_FK',
 							'$clase',
 							'$clase_autor',
 							'$clase_anio');";
-			if ($stmt = $con->prepare($query)) {
+
+
+					$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}					
+			}*/				
 		}
 		// imprimir mensaje de salida 
 		echo "<br>";

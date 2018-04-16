@@ -4,8 +4,17 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -86,16 +95,27 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_UnidadAnalisis) as id_unidad_analisis_FK
-				FROM paleo_fcb.unidadanalisis;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(unidadanalisis.\"id_UnidadAnalisis\") as id_unidad_analisis_fk
+				FROM unidadanalisis;";
+
+
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_unidad_analisis_FK= $data->id_unidad_analisis_fk;
+		}
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_unidad_analisis_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_unidad_analisis_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// sumar uno
 		$id_unidad_analisis_FK = check_key($id_unidad_analisis_FK);
 				
@@ -110,31 +130,50 @@
 		{
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_sistema_depositacion) as id_sistema_depositacion_FK 
-					FROM paleo_fcb.t_sistemadepositacion;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_sistema_depositacion) as id_sistema_depositacion_fk 
+					FROM t_sistemadepositacion;";
+
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_sistema_depositacion_FK= $data->id_sistema_depositacion_fk;
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_sistema_depositacion_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_sistema_depositacion_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno
 			$id_sistema_depositacion_FK = check_key($id_sistema_depositacion_FK);
 			// realiza la insercion
-			$query = "INSERT INTO paleo_fcb.t_sistemadepositacion 
+			$query = "INSERT INTO t_sistemadepositacion 
 					VALUES ('$id_sistema_depositacion_FK',
 							'$sistema_depositacion_clave_texto',
 							'$sistema_depositacion_texto');";
-			if ($stmt = $con->prepare($query)) {
+
+					$result = pg_query($db,$query);
+		if (!$result) {
+						$id_sistema_depositacion_FK = $sistema_depositacion;
+
+		}
+		
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 			}
+		*/
 		}else
 		{
 			$id_sistema_depositacion_FK = $sistema_depositacion;
 		}
-		
 		// ***********
 		// ambiente_depositacion
 		// ***********	
@@ -146,31 +185,46 @@
 		{
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_ambiente_depositacion) as id_ambiente_depositacion_FK 
-					FROM paleo_fcb.t_ambientedepositacion;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_ambiente_depositacion) as id_ambiente_depositacion_fk 
+					FROM t_ambientedepositacion;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_ambiente_depositacion_FK= $data->id_ambiente_depositacion_fk;
+		}
+					
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_ambiente_depositacion_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_ambiente_depositacion_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno
 			$id_ambiente_depositacion_FK = check_key($id_ambiente_depositacion_FK);
 			// realiza la insercion
-			$query = "INSERT INTO paleo_fcb.t_ambientedepositacion 
+			$query = "INSERT INTO t_ambientedepositacion 
 					VALUES ('$id_ambiente_depositacion_FK',
 							'$ambiente_depositacion_clave_texto',
 							'$ambiente_depositacion_texto');";
-			if ($stmt = $con->prepare($query)) {
+
+				if (!$result) {
+					$id_ambiente_depositacion_FK = $ambiente_depositacion;
+
+				}					
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 			}
+		
+			*/
 		}else
 		{
 			$id_ambiente_depositacion_FK = $ambiente_depositacion;
 		}
-			
 					
 		// ***********
 		// facie
@@ -183,26 +237,44 @@
 		{
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_facies) as id_facie_FK
-					from paleo_fcb.t_facies;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_facies) as id_facie_fk
+					from t_facies;";
+
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_facie_FK= $data->id_facies;
+			}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_facie_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_facie_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno
 			$id_facie_FK = check_key($id_facie_FK);
 			// realiza la insercion
-			$query = "INSERT INTO paleo_fcb.t_facies 
+			$query = "INSERT INTO t_facies 
 					VALUES ('$id_facie_FK',
 							'$facie_clave_texto',
 							'$facie_texto');";
-			if ($stmt = $con->prepare($query)) {
+
+			if (!$result) {
+					$id_facie_FK = $facie;
+
+				}
+								
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 			}
+		*/
 		}else
 		{
 			$id_facie_FK = $facie;
@@ -219,25 +291,44 @@
 		{
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_formacion) as id_formacion_FK
-					from paleo_fcb.t_formacion;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_formacion) as id_formacion_fk
+					from t_formacion;";
+
+			
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_formacion_FK= $data->id_formacion_fk;
+			}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_formacion_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_formacion_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno
 			$id_formacion_FK = check_key($id_formacion_FK);
 			// realiza la insercion
-			$query = "INSERT INTO paleo_fcb.t_formacion 
+			$query = "INSERT INTO t_formacion 
 					VALUES ('$id_formacion_FK',
 							'$formacion_texto');";
-			if ($stmt = $con->prepare($query)) {
+
+			if (!$result) {
+			$id_formacion_FK = $formacion;
+
+			}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 			}
+		*/
 		}else
 		{
 			$id_formacion_FK = $formacion;
@@ -249,17 +340,27 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT id_contaminacion as id_contaminacion_FK
-				FROM paleo_fcb.t_contaminacion
+		$query = "SELECT id_contaminacion as id_contaminacion_fk
+				FROM t_contaminacion
 				WHERE contaminacion = '$contaminacion';";
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_contaminacion_FK= $data->id_contaminacion_fk;
+		}
+
+						
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
-			$stmt->bind_result($id_contaminacion_FK);
+			$stmt->bind_result($id_contaminacion_fk);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_contaminacion_FK);
 			}				
 			$stmt->close();
-		}							
+		}	*/						
 	
 		// ***********
 		// sitio
@@ -269,17 +370,27 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_Sitio) 
-					as id_sitio_FK 
-				FROM paleo_fcb.sitio;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(sitio.\"id_Sitio\") 
+					as id_sitio_fk 
+				FROM sitio;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_sitio_FK= $data->id_sitio_fk;
+		}
+		
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_sitio_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_sitio_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// ******************************************
 		// VERIFICA SI ES EDAD CONTINENTAL O MARITIMA
@@ -299,44 +410,68 @@
 		
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_EdadContinental) 
-						as id_edad_continental_FK 
-					FROM paleo_fcb.edadcontinental;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(edadcontinental.\"id_EdadContinental\") 
+						as id_edad_continental_fk 
+					FROM edadcontinental;";
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_edad_continental_FK= $data->id_edad_continental_fk;
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_edad_continental_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_edad_continental_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// sumar uno debido a que es la siguiente tabla a llenar
 			$id_edad_continental_FK = check_key($id_edad_continental_FK);
 		
 			// insertar valores dummy
-			$query = "INSERT INTO paleo_fcb.edadcontinental 
+			$query = "INSERT INTO edadcontinental 
 					VALUES ('$id_edad_continental_FK', 
 						'1', '1', '1', '1', '1', '1', '1',
 						'NULL', '1', '1', '1', '1', 
 						'1', '1', 'NULL', '1');";
-						
-			if ($stmt = $con->prepare($query)) {
+			
+
+		$result = pg_query($db,$query);
+		if (!$result) {}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 
 			// ********************		
 			// insertar los valores
 			// ********************
 											
-			$query = "INSERT INTO paleo_fcb.unidadanalisis 
+			$query = "INSERT INTO unidadanalisis 
 					VALUES ('$id_unidad_analisis_FK','$unidad_analisis','$litologia',
 					'$id_sistema_depositacion_FK','$id_ambiente_depositacion_FK',
 					'$id_facie_FK','$id_formacion_FK','$id_contaminacion_FK',
 					'$nota_formacion','$id_edad_continental_FK',NULL,
 					'$id_sitio_FK');";
-			if ($stmt = $con->prepare($query)) {
+			
+
+					$result = @pg_query($db,$query);
+		if (!$result) {
+			/*echo (
+			"<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
+			);*/
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 			// imprimir mensaje de salida 
 			echo "<br>";
 			// echo 'Transacci&oacute;n completa con &eacute;xito.';				
@@ -355,42 +490,61 @@
 		
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_EdadMaritima) 
-						as id_edad_maritima_FK
-					FROM paleo_fcb.edadmaritima;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(edadmaritima.\"id_EdadMaritima\") 
+						as id_edad_maritima_fk
+					FROM edadmaritima;";
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_edad_maritima_FK= $data->id_edad_maritima_fk;
+		}
+				
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_edad_maritima_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_edad_maritima_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// sumar uno debido a que es la siguiente tabla a llenar
 			$id_edad_maritima_FK = check_key($id_edad_maritima_FK);
 			
 			// insertar valores dummy
-			$query = "INSERT INTO paleo_fcb.edadmaritima 
+			$query = "INSERT INTO edadmaritima 
 					VALUES ('$id_edad_maritima_FK', 
 							'1', '1', '1', '1', 
 							'1', '1', '1', 'NULL', 'NULL');";
-			if ($stmt = $con->prepare($query)) {
+			
+		$result = @pg_query($db,$query);
+		if (!$result) {
+			/*die(
+			"<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
+			);*/
+		}
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 
 			// ********************		
 			// insertar los valores
 			// ********************
 											
-			$query = "INSERT INTO paleo_fcb.unidadanalisis 
+			$query = "INSERT INTO unidadanalisis 
 					VALUES ('$id_unidad_analisis_FK','$unidad_analisis','$litologia',
 					'$id_sistema_depositacion_FK','$id_ambiente_depositacion_FK',
 					'$id_facie_FK','$id_formacion_FK','$id_contaminacion_FK',
 					'$nota_formacion',NULL,'$id_edad_maritima_FK',
 					'$id_sitio_FK');";
-			if ($stmt = $con->prepare($query)) {
+			
+//echo $query ;
+					$result = @pg_query($db,$query);
+		if (!$result) {}
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 			// imprimir mensaje de salida 
 			echo "<br>";
 			// echo 'Transacci&oacute;n completa con &eacute;xito.';			

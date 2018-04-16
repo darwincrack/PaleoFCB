@@ -9,8 +9,16 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -46,28 +54,46 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 //			echo $id_Especies;
 
 			//insertar relacion especieExistente - unidadAnalisis 
-			$query = "SELECT MAX(id_UnidadAnalisis) 
+			$query = "SELECT MAX(\"id_UnidadAnalisis\") 
 					as id_unidad_analisis_FK 
-					FROM paleo_fcb.unidadanalisis;";
-			if ($stmt = $con->prepare($query)) {
+					FROM unidadanalisis;";
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_unidad_analisis_FK= $data->id_UnidadAnalisis;
+			}	
+			
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_unidad_analisis_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_unidad_analisis_FK);
 				}				
 				$stmt->close();
-			}		
+			}	*/	
 					
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.unidadespecie 
+			$query = "INSERT INTO unidadespecie 
 						VALUES ('$id_Especies','$id_unidad_analisis_FK');";	
-			if ($stmt = $con->prepare($query)) {
+					$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -148,11 +174,25 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Alojamiento 
-				FROM paleo_fcb.t_alojamiento
-				ORDER BY Alojamiento;";
+		$query = "SELECT \"Alojamiento\"
+				FROM t_alojamiento
+				ORDER BY \"Alojamiento\";";
+
+ 		$qu = pg_query($db, $query);
+		echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			 if ($data->Alojamiento!="" & $data->Alojamiento!="NULL")
+				 {
+			echo "<option value = '".$data->Alojamiento."'>".$data->Alojamiento."</option>"; 
+		}
+		}	
+		echo "</select>"; 
+
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -166,7 +206,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 

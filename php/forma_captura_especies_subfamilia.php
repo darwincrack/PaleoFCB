@@ -8,9 +8,20 @@ CONECTARSE A LA BASE DE DATOS
 	<?php
 		// connect to database
 		require_once 'dbconfig.php';
+
+				$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }
+
+
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -47,9 +58,18 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		{
 			// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 			$query = "SELECT id_Familia
-					  FROM paleo_fcb.t_familia
+					  FROM t_familia
 					  WHERE familia = 'No Disponible';";
-			if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_familia_FK= $data->id_Familia;
+		}
+	
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($llave);
 				while ($stmt->fetch()) {
@@ -57,7 +77,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 				}				
 				$stmt->close();
 			}
-			$id_familia_FK=$llave;
+			$id_familia_FK=$llave;*/
 		// se requiere hacer una nueva insercion
 		}else
 		{
@@ -65,7 +85,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -100,13 +120,23 @@ FORMA DE CAPTURA
 		 echo '</td>';
 		 echo '<td valign="top">';
 		 echo '<select name='.$variable_name.'>'; 
-
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Clase, id_Clase, Autor, Anio 
-					FROM paleo_fcb.t_clase 
-					WHERE id_Clase = $id_clase_FK;";
+		$query = "SELECT \"Clase\", \"id_Clase\", \"Autor\", \"Anio\" 
+					FROM t_clase 
+					WHERE \"id_Clase\" = $id_clase_FK;";
 		 
-		if ($stmt = $con->prepare($query)) {
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			   if ($data->Clase!="" & $data->Clase!="NULL")
+							 {
+							echo "<option value = '".$data->id_Clase."'>".$data->Clase.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+							 }
+			}	
+			 echo "</select>"; 
+		 
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($clase,$id_clase_FK,$autor,$anio);
 			// add default
@@ -120,7 +150,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 	
 	<br><br>
@@ -168,11 +198,23 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Orden, id_Orden, Autor, Anio 
-					FROM paleo_fcb.t_orden
-					WHERE id_Orden = $id_orden_FK;";
+		$query = "SELECT \"Orden\", t_orden.\"id_Orden\", \"Autor\", \"Anio\" 
+					FROM t_orden 
+					WHERE t_orden.\"id_Orden\" = $id_orden_FK;";
+
+
+					$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			   if ($data->Orden!="" & $data->Orden!="NULL")
+							 {
+							echo "<option value = '".$data->id_Orden."'>".$data->Orden.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+							 }
+			}	
+		 echo "</select>";
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($orden,$id_orden_FK,$autor,$anio);
 			// add default
@@ -186,7 +228,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<br><br>
@@ -246,16 +288,26 @@ FORMA DE CAPTURA
 		if ($id_familia_FK=="NULL" & $familia_texto!="NULL"){
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_familia) as id_familia_FK 
-					FROM paleo_fcb.t_familia";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_familia) as id_familia_fk 
+					FROM t_familia";
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_familia_FK= $data->id_familia_fk;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_familia_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_familia_FK);
 				}				
 				$stmt->close();
-			}				
+			}	*/			
 		}
 		// nombre que se imprime en html
 		$nombre_combo_box = '<font color ="3b5998">
@@ -272,11 +324,27 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Familia, id_familia, Autor, Anio 
-					FROM paleo_fcb.t_familia
-					WHERE id_familia = $id_familia_FK;";
+		$query = "SELECT \"Familia\", \"id_Familia\", \"Autor\", \"Anio\" 
+					FROM t_familia
+					WHERE \"id_Familia\" = $id_familia_FK;";
+
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			   if ($data->Familia!="" & $data->Familia!="NULL")
+							 {
+							echo "<option value = '".$data->id_Familia."'>".$data->Familia.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+							 }
+			}	
+		 echo "</select>";
+
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($familia,$id_familia_FK,$autor,$anio);
 			// add default
@@ -290,7 +358,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<br><br>
@@ -316,13 +384,27 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT DISTINCT 
-						paleo_fcb.especies.Subfamilia 
-				FROM paleo_fcb.especies
-				WHERE paleo_fcb.especies.id_Clase = $id_clase_FK
-				AND paleo_fcb.especies.id_Orden = $id_orden_FK
-				AND paleo_fcb.especies.id_Familia = $id_familia_FK;";
+						especies.\"Subfamilia\"  as result
+				FROM especies
+				WHERE especies.id_Clase = $id_clase_FK
+				AND especies.id_Orden = $id_orden_FK
+				AND especies.id_Familia = $id_familia_FK;";
+
+		 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -339,7 +421,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 

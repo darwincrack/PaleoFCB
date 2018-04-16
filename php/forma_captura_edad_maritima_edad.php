@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -46,9 +55,19 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		{
 			// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 			$query = "SELECT id_epoca as llave
-					  FROM paleo_fcb.t_epoca
+					  FROM t_epoca
 					  WHERE epoca = 'No Disponible';";
-			if ($stmt = $con->prepare($query)) {
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_epoca_FK= $data->llave;
+		}	
+
+
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($llave);
 				while ($stmt->fetch()) {
@@ -56,11 +75,11 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 				}				
 				$stmt->close();
 			}
-			$id_epoca_FK=$llave;	
+			$id_epoca_FK=$llave;	*/
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -119,13 +138,28 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_era.id_era as id_era_FK,
-						paleo_fcb.t_era.era as era
+						t_era.id_era as id_era_fk,
+						t_era.era as era
 					FROM 
-						paleo_fcb.t_era
+						t_era
 					WHERE 
 						id_era = $id_era_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->era!="" & $data->era!="NULL")
+			{
+				echo "<option value = '".$data->id_era_fk."'>".$data->era."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_era_FK,$era);
 			// add default
@@ -139,7 +173,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 	
 	<br><br>
@@ -164,13 +198,25 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_periodo.id_periodo as id_periodo_FK,
-						paleo_fcb.t_periodo.periodo as periodo
+						t_periodo.id_periodo as id_periodo_fk,
+						t_periodo.periodo as periodo
 					FROM 
-						paleo_fcb.t_periodo
+						t_periodo
 					WHERE 
 						id_periodo = $id_periodo_FK;";
-		if ($stmt = $con->prepare($query)) {
+				 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->periodo!="" & $data->periodo!="NULL")
+			{
+				echo "<option value = '".$data->id_periodo_fk."'>".$data->periodo."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_periodo_FK,$periodo);
 			// add default
@@ -184,7 +230,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>		
 
 	<br><br>
@@ -200,24 +246,41 @@ FORMA DE CAPTURA
 		if ($id_epoca_FK=="NULL" & $epoca_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_epoca) as id_epoca_FK 
-						FROM paleo_fcb.t_epoca;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_epoca) as id_epoca_fk 
+						FROM t_epoca;";
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_epoca_FK= $data->id_epoca_fk;
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_epoca_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_epoca_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_epoca_FK = check_key($id_epoca_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_epoca 
-						VALUES ('$id_epoca_FK','$epoca_texto');";	
-			if ($stmt = $con->prepare($query)) {
+			$query = "INSERT INTO t_epoca 
+						VALUES ('$id_epoca_FK','$epoca_texto');";
+
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		}
 		// nombre que se imprime en html
 		$nombre_combo_box = '<b>3.</b> &Eacute;poca: ';
@@ -233,13 +296,25 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_epoca.id_epoca as id_epoca_FK,
-						paleo_fcb.t_epoca.epoca as epoca
+						t_epoca.id_epoca as id_epoca_fk,
+						t_epoca.epoca as epoca
 					FROM 
-						paleo_fcb.t_epoca
+						t_epoca
 					WHERE 
 						id_epoca = $id_epoca_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+				 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->epoca!="" & $data->epoca!="NULL")
+			{
+				echo "<option value = '".$data->id_epoca_fk."'>".$data->epoca."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_epoca_FK,$epoca);
 			// add default
@@ -253,7 +328,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 	
 	<br><br>
@@ -278,20 +353,37 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-					paleo_fcb.t_edadesmarinas.id_edades_marinas as id_edad_FK,
-					paleo_fcb.t_edadesmarinas.edad as edad
+					t_edadesmarinas.id_edades_marinas as id_edad_fk,
+					t_edadesmarinas.edad as edad
 				FROM 
-					paleo_fcb.t_edadesmarinas
+					t_edadesmarinas
 				WHERE 
 					id_edades_marinas IN 
 					(SELECT DISTINCT 
-						paleo_fcb.edadesmarinascompleta.edad
+						edadesmarinascompleta.edad
 					FROM 
-						paleo_fcb.edadesmarinascompleta
+						edadesmarinascompleta
 					WHERE 
-						paleo_fcb.edadesmarinascompleta.epoca = $id_epoca_FK);";
+						edadesmarinascompleta.epoca = $id_epoca_FK);";
+
+
+						 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";	
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->edad!='No Disponible')
+			{
+				echo "<option value = '".$data->id_edad_fk."'>".$data->edad."</option>"; 
+			}	
+		}	
+		echo "</select>"; 		
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_edad_FK,$edad);
 			// add default
@@ -305,7 +397,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>

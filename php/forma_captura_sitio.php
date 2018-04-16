@@ -224,7 +224,6 @@ FORMA DE CAPTURA
 			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
 			);
 		}
-		echo "<option value =NULL>NULL</option>";
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
 					echo "<option value = '".$row['result']."'>".$row['result']."</option>"; 
@@ -289,7 +288,6 @@ FORMA DE CAPTURA
 			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
 			);
 		}
-		echo "<option value =NULL>NULL</option>";
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
 					echo "<option value = '".$row['result']."'>".$row['result']."</option>"; 
@@ -360,7 +358,6 @@ FORMA DE CAPTURA
 			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
 			);
 		}
-		echo "<option value =NULL>NULL</option>";
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
 					echo "<option value = '".$row['result']."'>".$row['result']."</option>"; 

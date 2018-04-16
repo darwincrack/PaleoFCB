@@ -6,8 +6,16 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+/*	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -50,7 +58,7 @@
 	$clave_alojamiento_texto = $_POST['clave_alojamiento_texto'];
 	
 	if(!isset($_POST['tipo_operacion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_operacion = $_POST['tipo_operacion'];
@@ -71,16 +79,26 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_MaterialesLote) as id_materiales_lote_FK
-				FROM paleo_fcb.materialeslote;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(\"id_MaterialesLote\") as id_materiales_lote_fk
+				FROM materialeslote;";
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_materiales_lote_FK= $data->id_materiales_lote_fk;
+		}
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_materiales_lote_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_materiales_lote_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// revisa la llave
 		$id_materiales_lote_FK = check_key($id_materiales_lote_FK);
 
@@ -100,43 +118,72 @@
 			$clave_alojamiento=$clave_alojamiento_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Alojamiento) as id_alojamiento 
-					FROM paleo_fcb.t_alojamiento";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(\"id_Alojamiento\") as id_alojamiento 
+					FROM t_alojamiento";
+
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_alojamiento= $data->id_alojamiento;
+		}
+
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_alojamiento);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_alojamiento);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada en campo alojamiento
 			$id_alojamiento_FK = check_key($id_alojamiento);
-			$query = "INSERT INTO paleo_fcb.t_alojamiento 
+			$query = "INSERT INTO t_alojamiento 
 					VALUES ('$id_alojamiento_FK','$clave_alojamiento','$alojamiento')";
-			if ($stmt = $con->prepare($query)) {
+
+							$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}		
+			}		*/
 		}
 		// extraer la FK
-		$query = "SELECT id_Alojamiento as id_alojamiento_FK 
-				FROM paleo_fcb.t_alojamiento 
-				WHERE Alojamiento = '$alojamiento'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Alojamiento\" as id_alojamiento_fk
+				FROM t_alojamiento 
+				WHERE \"Alojamiento\" = '$alojamiento'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_alojamiento_FK= $data->id_alojamiento_fk;
+		}	
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_alojamiento_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_alojamiento_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// ***********
 		// id_especies_FK
 		// ***********	
 
 		if(!isset($_POST['tipo_accion'])) {
-			died('We are sorry, but there appears to be a problem with the form you submitted.');		
+			die('We are sorry, but there appears to be a problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
 		
@@ -146,16 +193,24 @@
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
 			$query = "SELECT MAX(id_Especies) 
-						as id_especies_FK 
-					FROM paleo_fcb.especies;";
-			if ($stmt = $con->prepare($query)) {
+						as id_especies_fk 
+					FROM especies;";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_especies_FK= $data->id_especies_fk;
+		}	
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_especies_FK);
 				while ($stmt->fetch()) {
 					 //printf("%s\n", $id_especies_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}else
 		{
 			// option 2
@@ -168,15 +223,22 @@
 		// insertar los valores
 		// ********************
 								
-		$query = "INSERT INTO paleo_fcb.materialeslote 
+		$query = "INSERT INTO materialeslote 
 				VALUES ('$id_materiales_lote_FK',
 						'$lote',
 						'$materiales_lote_descripcion',
 						'$id_especies_FK',
 						'$id_alojamiento_FK');";
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
+
+				$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
 		}
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
 
 		// imprimir mensaje de salida 
 		echo "<br>";

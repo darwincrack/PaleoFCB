@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+				$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }	
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -39,9 +48,17 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		{
 			// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 			$query = "SELECT id_Clase as llave
-					  FROM paleo_fcb.t_clase
+					  FROM t_clase
 					  WHERE Clase = 'No Disponible';";
-			if ($stmt = $con->prepare($query)) {
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_clase_FK= $data->llave;
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($llave);
 				while ($stmt->fetch()) {
@@ -49,7 +66,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 				}				
 				$stmt->close();
 			}
-			$id_clase_FK=$llave;
+			$id_clase_FK=$llave;*/
 		// se requiere hacer una nueva insercion
 		}else
 		{
@@ -57,7 +74,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 		}
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -85,16 +102,27 @@ FORMA DE CAPTURA
 		if ($id_clase_FK=="NULL" & $clase_texto!="NULL"){
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Clase) as id_clase_FK 
-					FROM paleo_fcb.t_clase";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_Clase) as id_clase_fk 
+					FROM t_clase";
+
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_clase_FK= $data->id_clase_fk;
+		}
+
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_clase_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_clase_FK);
 				}				
 				$stmt->close();
-			}				
+			}	*/			
 		}
 		// nombre que se imprime en html
 		$nombre_combo_box = '<font color ="3b5998">
@@ -111,11 +139,24 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Clase, id_Clase, Autor, Anio 
-					FROM paleo_fcb.t_clase 
-					WHERE id_Clase = $id_clase_FK;";
+		$query = "SELECT \"Clase\", \"id_Clase\", \"Autor\", \"Anio\" 
+					FROM t_clase 
+					WHERE \"id_Clase\" = $id_clase_FK;";
 		 
-		if ($stmt = $con->prepare($query)) {
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			   if ($data->Clase!="" & $data->Clase!="NULL")
+							 {
+							echo "<option value = '".$data->id_Clase."'>".$data->Clase.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+							 }
+			}	
+			 echo "</select>"; 
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($clase,$id_clase_FK,$autor,$anio);
 			// add default
@@ -129,7 +170,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 
 	<br><br>
@@ -152,11 +193,29 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT DISTINCT paleo_fcb.especies.Subclase 
-				FROM paleo_fcb.especies
-				WHERE paleo_fcb.especies.id_Clase = $id_clase_FK;";
+		$query = "SELECT DISTINCT especies.Subclase  as result
+				FROM especies
+				WHERE especies.id_Clase = $id_clase_FK;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+		 		 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				if($data->result!='No Disponible'){  
+					echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+				}
+			}	
+		}	
+		echo "</select>"; 
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -173,7 +232,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		//echo "<br>"; 

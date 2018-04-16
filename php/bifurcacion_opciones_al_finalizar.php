@@ -10,7 +10,7 @@
 	if($tipo_accion=='otra_matcat')
 	{
 		if( !isset($_POST['id_especies'])) {
-			died('We are sorry, but there appears to be a problem with the form you submitted.');		
+			die('We are sorry, but there appears to be a problem with the form you submitted.');		
 		}
 		
 		$id_Especies = $_POST['id_especies'];
@@ -19,7 +19,7 @@
 	}
 
 	if(!isset($_POST['tipo_operacion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_operacion = $_POST['tipo_operacion'];

@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+					$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -91,24 +100,34 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "
 				SELECT 
-					paleo_fcb.t_region.id_region as id_region_FK,
-					paleo_fcb.t_region.region as region
+					t_region.id_region as id_region_fk,
+					t_region.region as region
 				FROM 
-					paleo_fcb.t_region 
+					t_region 
 				WHERE 
-					paleo_fcb.t_region.id_region = 
+					t_region.id_region = 
 					(SELECT 
-						paleo_fcb.ubicacion.Region as id_region_FK 
+						ubicacion.\"Region\" as id_region_fk 
 					FROM 
-						paleo_fcb.ubicacion
+						ubicacion
 					WHERE
-						paleo_fcb.ubicacion.id_Ubicacion = 
+						ubicacion.\"id_Ubicacion\" = 
 						(SELECT 
-							MAX(paleo_fcb.hallazgo.id_ubicacion) 
+							MAX(hallazgo.id_ubicacion) 
 						FROM 
-							paleo_fcb.hallazgo));";
-		 
-		if ($stmt = $con->prepare($query)) {
+							hallazgo));";
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_ubicacion_PK= $data->id_region_fk;
+			  echo "<option value = '".$data->id_region_fk."'>".$data->region."</option>"; 
+
+			}					
+		 	echo "</select>"; 
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_region_FK,$region);
 			// add default
@@ -119,7 +138,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -143,13 +162,26 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_era.id_era as id_era_FK,
-						paleo_fcb.t_era.era as era
+						t_era.id_era as id_era_fk,
+						t_era.era as era
 					FROM 
-						paleo_fcb.t_era
+						t_era
 					WHERE 
 						id_era = $id_era_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			  $id_ubicacion_PK= $data->id_region_fk;
+			  echo "<option value = '".$data->id_era_fk."'>".$data->era."</option>"; 
+
+			}					
+		 	echo "</select>"; 
+		 	
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_era_FK,$era);
 			// add default
@@ -163,7 +195,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 <br><br>
 	<!-- **************
@@ -184,20 +216,33 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-					paleo_fcb.t_periodo.id_periodo as id_periodo_FK,
-					paleo_fcb.t_periodo.periodo as periodo
+					t_periodo.id_periodo as id_periodo_fk,
+					t_periodo.periodo as periodo
 				FROM 
-					paleo_fcb.t_periodo
+					t_periodo
 				WHERE 
 					id_periodo IN 
 					(SELECT DISTINCT 
-						paleo_fcb.edadescontinentalescompleta.periodo
+						edadescontinentalescompleta.periodo
 					FROM 
-						paleo_fcb.edadescontinentalescompleta
+						edadescontinentalescompleta
 					WHERE 
-						paleo_fcb.edadescontinentalescompleta.era = $id_era_FK);";
+						edadescontinentalescompleta.era = $id_era_FK);";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+			$qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";	
+			while ($data = pg_fetch_object($qu)) 
+			{
+				if($data->periodo!='No Disponible'){
+					echo "<option value = '".$data->id_periodo_fk."'>".$data->periodo."</option>";
+				}
+			}
+			 echo "</select>"; 
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_periodo_FK,$periodo);
 			// add default
@@ -211,7 +256,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>

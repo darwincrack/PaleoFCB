@@ -267,7 +267,8 @@
 						'$id_municipio_FK','$localidad');";
 
 					$result = @pg_query($db,$query);
-
+					//echo 	$query;
+//die("ssfsdfdsdarw");
 					
 		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
@@ -323,12 +324,14 @@
 			}*/
 		}
 		
+
 		// insertar los valores en tabla
 		$query = "INSERT INTO hallazgo 
 				VALUES ('$id_ubicacion_PK',
 						'$id_ReferenciaBibliografica_FK');";
 
 				$result = @pg_query($db,$query);
+
 
 			
 

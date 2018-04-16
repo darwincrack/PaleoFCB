@@ -4,8 +4,17 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+/*	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+					$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }		
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -70,16 +79,26 @@
 		
 		// extrae la llave de la ultima insercion que sera la FK
 		// de la tabla de referencias
-		$query = "SELECT MAX(id_EdadMaritima) as id_edad_maritima_FK
-				FROM paleo_fcb.edadmaritima;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(id_EdadMaritima) as id_edad_maritima_fk
+				FROM edadmaritima;";
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_edad_maritima_FK= $data->id_edad_maritima_fk;
+		}
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_edad_maritima_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_edad_maritima_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// // ********************		
 		// // insertar los valores
@@ -104,7 +123,7 @@
 		// donde tengo que reemplazar valores dummy
 		// *****************************************
 
-		$query = "UPDATE paleo_fcb.edadmaritima   
+		$query = "UPDATE edadmaritima   
 				SET Era='$id_era_FK',
 					Periodo='$id_periodo_FK',
 					Epoca='$id_epoca_FK',
@@ -116,9 +135,16 @@
 					Laboratorio='$laboratorio'
 				WHERE id_EdadMaritima='$id_edad_maritima_FK';";
 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
+				$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
 		}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
 
 		// imprimir mensaje de salida 
 		echo "<br>";

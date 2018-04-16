@@ -4,8 +4,18 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+					$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }
+
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -74,26 +84,44 @@
 			$familia=$familia_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_familia) as id_familia_FK 
-					FROM paleo_fcb.t_familia";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(\"id_Familia\") as id_familia_fk 
+					FROM t_familia";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_familia_FK= $data->id_familia_fk;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_familia_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_familia_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada
 			$id_familia_FK = check_key($id_familia_FK);
-			$query = "INSERT INTO paleo_fcb.t_familia 
+			$query = "INSERT INTO t_familia 
 					VALUES ('$id_familia_FK',
 							'$familia',
 							'$familia_autor',
 							'$familia_anio');";
-			if ($stmt = $con->prepare($query)) {
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		}
 		// imprimir mensaje de salida 
 		echo "<br>";

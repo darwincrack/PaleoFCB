@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+			$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -25,7 +34,7 @@ DESPLIEGUE DE INSTRUCCIONES
 <?php
 	// validation expected data exists
 	if(!isset($_POST['tipo_accion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_accion = $_POST['tipo_accion'];
@@ -33,7 +42,7 @@ DESPLIEGUE DE INSTRUCCIONES
 	
 	
 	if( !isset($_POST['id_especies'])) {
-		died('We are sorry, but there appears to be a problem with the form you submitted.');		
+		die('We are sorry, but there appears to be a problem with the form you submitted.');		
 	}
 	
 	$id_Especies = $_POST['id_especies'];
@@ -42,7 +51,7 @@ DESPLIEGUE DE INSTRUCCIONES
 
 
 	if(!isset($_POST['tipo_operacion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_operacion = $_POST['tipo_operacion'];
@@ -129,10 +138,19 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_lado,lado
-				FROM paleo_fcb.t_lado;";
-		 
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_lado\",\"Lado\"
+				FROM t_lado;";
+		 		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->id_lado."'>".$data->Lado."</option>"; 
+		}	
+		echo "</select>"; 
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_lado,$lado);
 			// add default
@@ -143,7 +161,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -190,10 +208,21 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_Elemento,Elemento,Clave_elemento
-				FROM paleo_fcb.t_elemento;";
+		$query = "SELECT \"id_Elemento\",\"Elemento\",\"Clave_elemento\"
+				FROM t_elemento;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->id_Elemento."'>".$data->Elemento.' ( '.$data->Clave_elemento.' ) '."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_elemento,$elemento,$elemento_extra);
 			// add default
@@ -204,7 +233,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -261,9 +290,18 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT *
-				FROM paleo_fcb.t_parte;";
-		 
-		if ($stmt = $con->prepare($query)) {
+				FROM t_parte;";
+		 		 $qu = pg_query($db, $query);
+			 echo "<option value =NULL>NULL</option>";			
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->id_Parte."'>".$data->Parte."</option>"; 
+		}	
+		echo "</select>"; 
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_parte,$parte);
 			// add default
@@ -274,7 +312,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -315,9 +353,20 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_Agente,Agente,id_ag 
-					FROM paleo_fcb.t_agente;";
+					FROM t_agente;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->id_Agente."'>".$data->Agente.' ( '.$data->id_ag.' ) '."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_agente,$agente,$agente_extra);
 			// add default
@@ -328,7 +377,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -385,9 +434,22 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_Contexto,Contexto,id_ctx FROM paleo_fcb.t_contexto;";
+		$query = "SELECT \"id_Contexto\",\"Contexto\",\"id_ctx\" FROM t_contexto;";
+
+
+				 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->id_Contexto."'>".$data->Contexto.' ( '.$data->id_ctx.' ) '."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_contexto,$contexto,$contexto_extra);
 			// add default
@@ -398,7 +460,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -424,9 +486,21 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_Interperismo,Interperismo,id_intem 
-					FROM paleo_fcb.t_interperismo;";
+					FROM t_interperismo;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->id_lado."'>".$data->Lado."</option>"; 
+
+			echo "<option value = '".$data->id_Agente."'>".$data->Agente.' ( '.$data->id_ag.' ) '."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_interperismo,$interperismo,$interperismo_extra);
 			// add default
@@ -437,7 +511,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -463,11 +537,22 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Alojamiento 
-				FROM paleo_fcb.t_alojamiento
+		$query = "SELECT \"Alojamiento\" 
+				FROM t_alojamiento
 				ORDER BY Alojamiento;";
-		 
-		if ($stmt = $con->prepare($query)) {
+		
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->Alojamiento."'>".$data->Alojamiento."</option>"; 
+		}	
+		echo "</select>"; 
+
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -481,7 +566,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 

@@ -241,7 +241,7 @@
 			//echo $id_ubicacion_FK;
 			
 		}else{
-			$query = 'SELECT MAX("id_Ubicacion") as id_ubicacion_FK 
+			$query = 'SELECT MAX("id_Ubicacion") as id_ubicacion_fk 
 						FROM "ubicacion";';
 
 		$result = pg_query($db,$query);
@@ -255,7 +255,7 @@
 
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
-			$id_ubicacion_FK =  $row['id_ubicacion_FK'];
+			$id_ubicacion_FK =  $row['id_ubicacion_fk'];
 		}
 
 			/*if ($stmt = $con->prepare($query)) {
@@ -279,7 +279,6 @@
 				$utmn,$zonautm,$id_fuente_altitud_FK,
 				$id_ubicacion_FK,$altitud,$id_fuente_coord_FK,
 				$id_precision_coord_FK);";
-
 
 		$result = pg_query($db,$query);
 		if (!$result) {

@@ -140,15 +140,13 @@ FORMA DE CAPTURA
 			);
 		}
 
-
-		echo "<option value =NULL>NULL</option>";
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
-					echo "<option value = '".$row['id_sistema_depositacion']."'>".$row['Sistema_Depositacion']." ( ".$row['idsd']." ) </option>"; 
+					echo "<option value = '".$row['id_sistema_depositacion']."'>".$row['sistema_depositacion']." ( ".$row['idsd']." ) </option>"; 
 		}
 
 		echo "</select>"; 
-die('verificar este select');
+
 		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($llave,$valor,$clave);
@@ -225,10 +223,24 @@ die('verificar este select');
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_ambiente_depositacion,Ambiente_Depositacion,ida
-					FROM paleo_fcb.t_ambientedepositacion
+					FROM t_ambientedepositacion
 					ORDER BY Ambiente_Depositacion;";
-		 
-		if ($stmt = $con->prepare($query)) {
+
+			$qu = pg_query($db, $query);
+			
+			echo "<option value =NULL>NULL</option>";
+			while ($data = pg_fetch_object($qu)) {
+
+
+
+				echo "<option value = '".$data->id_ambiente_depositacion."'>".$data->ambiente_depositacion.' ( '.$data->ida.' ) '."</option>"; 
+
+
+			}	
+			 echo "</select>";
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($llave,$valor,$clave);
 			// add default
@@ -239,7 +251,7 @@ die('verificar este select');
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -302,11 +314,22 @@ die('verificar este select');
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_facies,facies,idf
-					FROM paleo_fcb.t_facies
-					GROUP BY facies
-					;";
+					FROM t_facies
+					GROUP BY facies,id_facies order by facies;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+			$qu = pg_query($db, $query);
+			
+			echo "<option value =NULL>NULL</option>";
+			while ($data = pg_fetch_object($qu)) {
+  				echo "<option value = '".$data->id_facies."'>".$data->facies.' ( '.$data->idf.' ) '."</option>"; 
+
+			}	
+			 echo "</select>";
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($llave,$valor,$clave);
 			// add default
@@ -317,7 +340,7 @@ die('verificar este select');
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -372,21 +395,35 @@ die('verificar este select');
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_formacion,formacion
-				FROM paleo_fcb.t_formacion
-				GROUP BY formacion;";
+				FROM t_formacion
+				GROUP BY formacion,id_formacion ORDER BY formacion;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+			$qu = pg_query($db, $query);
+			
+			echo "<option value =NULL>NULL</option>";
+			while ($data = pg_fetch_object($qu)) {
+
+				echo "<option value = '".$data->id_formacion."'>".$data->formacion.''."</option>"; 
+
+			}	
+			 echo "</select>";
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($llave,$valor);
 			// add default
-			echo "<option value =NULL>NULL</option>";			
+			//echo "<option value =NULL>NULL</option>";			
 			while ($stmt->fetch()) 
 			 { 
-				echo "<option value = '".$llave."'>".$valor.''."</option>"; 
+				echo "<option value = '".$data->id_formacion."'>".$data->formacion.''."</option>"; 
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>	
@@ -440,10 +477,20 @@ die('verificar este select');
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT contaminacion as result
-					FROM paleo_fcb.t_contaminacion
+					FROM t_contaminacion
 					ORDER BY result;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) {
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+
+			}	
+			echo "</select>";
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -454,7 +501,7 @@ die('verificar este select');
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo '<br>';

@@ -4,8 +4,17 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+	/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+		or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -125,17 +134,26 @@
 		// actividad
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Actividad as id_actividad_FK 
-				FROM paleo_fcb.t_actividad 
-				WHERE Actividad = '$actividad'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Actividad\" as id_actividad_fk 
+				FROM t_actividad 
+				WHERE \"Actividad\" = '$actividad'";
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_actividad_FK= $data->id_actividad_fk;
+		}	
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_actividad_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_actividad_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// dieta A
@@ -146,38 +164,62 @@
 		if ($dieta_a=="NULL" & $dieta_a_clave!="NULL" & $dieta_a_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_Dieta_A) as id_dieta_a_FK 
-						FROM paleo_fcb.t_dietaa;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_Dieta_A) as id_dieta_a_fk 
+						FROM t_dietaa;";
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_a_FK= $data->id_dieta_a_fk;
+		}	
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_dieta_a_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_dieta_a_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_dieta_a_FK = check_key($id_dieta_a_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_dietaa 
+			$query = "INSERT INTO t_dietaa 
 						VALUES ('$id_dieta_a_FK','$dieta_a_clave','$dieta_a_texto');";	
-			if ($stmt = $con->prepare($query)) {
+
+
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox
 		}else{
 			// extraer la FK
-			$query = "SELECT id_Dieta_A as id_dieta_a_FK 
-					FROM paleo_fcb.t_dietaa 
-					WHERE Dieta_A = '$dieta_a'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Dieta_A\" as id_dieta_a_fk 
+					FROM t_dietaa 
+					WHERE \"Dieta_A\" = '$dieta_a'";
+
+			$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_a_FK= $data->id_dieta_a_fk;
+		}
+		
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_dieta_a_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_dieta_a_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// ***********
@@ -188,38 +230,65 @@
 		if ($dieta_b=="NULL" & $dieta_b_clave!="NULL" & $dieta_b_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_dieta_b) as id_dieta_b_FK 
-						FROM paleo_fcb.t_dietab;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_dieta_b) as id_dieta_b_fk 
+						FROM t_dietab;";
+			$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_b_FK= $data->id_dieta_b_fk;
+		}
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_dieta_b_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_dieta_b_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_dieta_b_FK = check_key($id_dieta_b_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_dietab 
+			$query = "INSERT INTO t_dietab 
 						VALUES ('$id_dieta_b_FK','$dieta_b_clave','$dieta_b_texto');";	
-			if ($stmt = $con->prepare($query)) {
+			$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox
 		}else{
 			// extraer la FK
-			$query = "SELECT id_dieta_b as id_dieta_b_FK 
-					FROM paleo_fcb.t_dietab 
-					WHERE dieta_b = '$dieta_b'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Dieta_B\" as id_dieta_b_fk
+					FROM t_dietab 
+					WHERE \"Dieta_B\" = '$dieta_b'";
+
+
+			$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_b_FK= $data->id_dieta_b_fk;
+		}
+		
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_dieta_b_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_dieta_b_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 
 		// ***********
@@ -231,38 +300,68 @@
 		if ($hab_alim_a=="NULL" & $hab_alim_a_clave!="NULL" & $hab_alim_a_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_Hab_Alim_A) as id_hab_alim_a_FK 
-						FROM paleo_fcb.t_habalima;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_Hab_Alim_A) as id_hab_alim_a_fk 
+						FROM t_habalima;";
+$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_a_FK= $data->id_hab_alim_a_fk;
+		}
+
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_alim_a_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_alim_a_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_hab_alim_a_FK = check_key($id_hab_alim_a_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_habalima 
+			$query = "INSERT INTO t_habalima 
 						VALUES ('$id_hab_alim_a_FK','$hab_alim_a_clave','$hab_alim_a_texto');";	
-			if ($stmt = $con->prepare($query)) {
+
+					$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox		
 		}else{		
 			// extraer la FK
-			$query = "SELECT id_Hab_Alim_A as id_hab_alim_a_FK 
-					FROM paleo_fcb.t_habalima
-					WHERE Hab_Alim_A  = '$hab_alim_a'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Hab_Alim_A\" as id_hab_alim_a_fk 
+					FROM t_habalima
+					WHERE \"Hab_Alim_A\"  = '$hab_alim_a'";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_a_FK= $data->id_hab_alim_a_fk;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_alim_a_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_alim_a_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// ***********
@@ -274,38 +373,69 @@
 		if ($hab_alim_b=="NULL" & $hab_alim_b_clave!="NULL" & $hab_alim_b_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_hab_alim_b) as id_hab_alim_b_FK 
-						FROM paleo_fcb.t_habalimb;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_hab_alim_b) as id_hab_alim_b_fk 
+						FROM t_habalimb;";
+
+
+
+	$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_b_FK= $data->id_hab_alim_b_fk;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_alim_b_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_alim_b_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_hab_alim_b_FK = check_key($id_hab_alim_b_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_habalimb 
+			$query = "INSERT INTO t_habalimb 
 						VALUES ('$id_hab_alim_b_FK','$hab_alim_b_clave','$hab_alim_b_texto');";	
-			if ($stmt = $con->prepare($query)) {
+			
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox		
 		}else{
 			// extraer la FK
-			$query = "SELECT id_Hab_Alim_B as id_hab_alim_b_FK 
-					FROM paleo_fcb.t_habalimb
-					WHERE Hab_Alim_B  = '$hab_alim_b'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Hab_Alim_B\" as id_hab_alim_b_fk 
+					FROM t_habalimb
+					WHERE \"Hab_Alim_B\"  = '$hab_alim_b'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_b_FK= $data->id_hab_alim_b_fk;
+		}
+
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_alim_b_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_alim_b_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 				
 		// ***********
@@ -317,38 +447,64 @@
 		if ($hab_refugio=="NULL" & $hab_refugio_clave!="NULL" & $hab_refugio_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_Hab_Refugio) as id_hab_refugio_FK 
-						FROM paleo_fcb.t_habrefugio;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_Hab_Refugio) as id_hab_refugio_fk 
+						FROM t_habrefugio;";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_refugio_FK= $data->id_hab_refugio_fk;
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_refugio_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_refugio_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_hab_refugio_FK = check_key($id_hab_refugio_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_habrefugio 
+			$query = "INSERT INTO t_habrefugio 
 						VALUES ('$id_hab_refugio_FK','$hab_refugio_clave','$hab_refugio_texto');";	
-			if ($stmt = $con->prepare($query)) {
+
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox		
 		}else{
 			// extraer la FK
-			$query = "SELECT id_Hab_Refugio as id_hab_refugio_FK
-					FROM paleo_fcb.t_habrefugio
-					WHERE Hab_Refugio = '$hab_refugio'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Hab_Refugio\" as id_hab_refugio_fk
+					FROM t_habrefugio
+					WHERE \"Hab_Refugio\" = '$hab_refugio'";
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_refugio_FK= $data->id_hab_refugio_fk;
+		}
+
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_hab_refugio_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_hab_refugio_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// ***********
@@ -360,75 +516,118 @@
 		if ($locomocion=="NULL" & $locomocion_clave!="NULL" & $locomocion_texto!="NULL")
 		{
 			// extrae el ultimo valor del ID en tabla
-			$query = "SELECT MAX(id_locomocion) as id_locomocion_FK 
-						FROM paleo_fcb.t_locomocion;";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(id_locomocion) as id_locomocion_fk
+						FROM t_locomocion;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_locomocion_FK= $data->id_locomocion_fk;
+		}
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_locomocion_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_locomocion_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// suma uno al max key
 			$id_locomocion_FK = check_key($id_locomocion_FK);
 			// INSERTA LOS VALORES
-			$query = "INSERT INTO paleo_fcb.t_locomocion 
+			$query = "INSERT INTO t_locomocion 
 						VALUES ('$id_locomocion_FK','$locomocion_clave','$locomocion_texto');";	
-			if ($stmt = $con->prepare($query)) {
+			
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
+		}
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}
+			}*/
 		// si la opcion ya venia en el combobox		
 		}else{		
 			// extraer la FK
-			$query = "SELECT id_Locomocion as id_locomocion_FK
-					FROM paleo_fcb.t_locomocion
-					WHERE Locomocion = '$locomocion'";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT \"id_Locomocion\" as id_locomocion_fk
+					FROM t_locomocion
+					WHERE \"Locomocion\" = '$locomocion'";
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_locomocion_FK= $data->id_locomocion_fk;
+		}
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_locomocion_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_locomocion_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 
 		// ***********
 		// Status
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Status as id_status_FK
-				FROM paleo_fcb.t_status
-				WHERE Status = '$status'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Status\" as id_status_fk
+				FROM t_status
+				WHERE \"Status\" = '$status'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_status_FK= $data->id_status_fk;
+		}
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_status_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_status_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// ***********
 		// Especies
 		// ***********		
 		// extrae el ultimo valor del ID en tabla especies
-		$query = "SELECT MAX(id_Especies) as id_especies_PK 
-				 FROM paleo_fcb.especies;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(\"id_Especies\") as id_especies_pk 
+				 FROM especies;";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_especies_PK= $data->id_especies_pk;
+		}
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_especies_PK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_especies_PK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// sumar uno
 		$id_especies_PK = check_key($id_especies_PK);
 		
 		// INSERTA LOS VALORES
-		$query = "INSERT INTO paleo_fcb.especies 
+		$query = "INSERT INTO especies 
 					VALUES ('$id_especies_PK','$subclase','$suborden','$infraorden',
 						'$subfamilia','$genero','$especie','$autor','$sinonimias',
 						'$taxon_valido','$nombre_espaniol','$nombre_ingles',
@@ -436,32 +635,57 @@
 						'$id_dieta_b_FK','$id_hab_alim_a_FK','$id_hab_alim_b_FK',
 						'$id_familia_FK','$id_hab_refugio_FK','$id_locomocion_FK',
 						'$id_orden_FK','$id_status_FK');";	
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
+		
+		$result = pg_query($db,$query);
+		if (!$result) {
+			echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";
 		}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
 		
 		// ***********
 		// TABLA unidadespecie
 		// ***********		
 		// extrae el ultimo valor del ID en tabla especies
-		$query = "SELECT MAX(id_UnidadAnalisis) 
+		$query = "SELECT MAX(\"id_UnidadAnalisis\") 
 				as id_unidad_analisis_FK 
-				FROM paleo_fcb.unidadanalisis;";
-		if ($stmt = $con->prepare($query)) {
+				FROM unidadanalisis;";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_unidad_analisis_FK= $data->id_UnidadAnalisis;
+		}
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_unidad_analisis_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_unidad_analisis_FK);
 			}				
 			$stmt->close();
-		}		
+		}	*/	
 				
 		// INSERTA LOS VALORES
-		$query = "INSERT INTO paleo_fcb.unidadespecie 
+		$query = "INSERT INTO unidadespecie 
 					VALUES ('$id_especies_PK','$id_unidad_analisis_FK');";	
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
+		
+
+		$result = @pg_query($db,$query);
+		if (!$result) {
+			/*echo "<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
+			<br>
+			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>";*/
 		}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
 		
 		// imprimir mensaje de salida 
 		echo "<br>";

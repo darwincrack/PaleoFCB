@@ -9,8 +9,17 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+			$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -82,7 +91,16 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT id_era as id_era_fk,
 						era as era
-				FROM paleo_fcb.t_era as era;";
+				FROM t_era as era;";
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->id_era_fk."'>".$data->era."</option>"; 
+		}	
+		echo "</select>"; 
+
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		// SI SE DESEA QUE SEA DEPENDIENDO DE LA REGION
@@ -100,7 +118,7 @@ FORMA DE CAPTURA
 					//WHERE 
 						//paleo_fcb.edadescontinentalescompleta.region = $id_region_FK);";
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_era_FK,$era);
 			// add default
@@ -111,7 +129,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>

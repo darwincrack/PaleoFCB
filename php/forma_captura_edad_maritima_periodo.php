@@ -9,8 +9,18 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }	
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -35,7 +45,7 @@ EXTRAE VALORES DEL FORMULARIO ANTERIOR
 
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -95,13 +105,26 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-						paleo_fcb.t_era.id_era as id_era_FK,
-						paleo_fcb.t_era.era as era
+						t_era.id_era as id_era_fk,
+						t_era.era as era
 					FROM 
-						paleo_fcb.t_era
+						t_era
 					WHERE 
 						id_era = $id_era_FK;";
-		if ($stmt = $con->prepare($query)) {
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			 if ($data->era!="" & $data->era!="NULL")
+			{
+			echo "<option value = '".$data->id_era_fk."'>".$data->era."</option>"; 
+			}
+		}	
+		echo "</select>"; 
+
+						
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_era_FK,$era);
 			// add default
@@ -115,7 +138,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 <br><br>
 	<!-- **************
@@ -137,20 +160,31 @@ FORMA DE CAPTURA
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT 
-					paleo_fcb.t_periodo.id_periodo as id_periodo_FK,
-					paleo_fcb.t_periodo.periodo as periodo
+					t_periodo.id_periodo as id_periodo_fk,
+					t_periodo.periodo as periodo
 				FROM 
-					paleo_fcb.t_periodo
+					t_periodo
 				WHERE 
 					id_periodo IN 
 					(SELECT DISTINCT 
-						paleo_fcb.edadesmarinascompleta.periodo
+						edadesmarinascompleta.periodo
 					FROM 
-						paleo_fcb.edadesmarinascompleta
+						edadesmarinascompleta
 					WHERE 
-						paleo_fcb.edadesmarinascompleta.era = $id_era_FK);";
-		 
-		if ($stmt = $con->prepare($query)) {
+						edadesmarinascompleta.era = $id_era_FK);";
+		 		 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->id_periodo_fk."'>".$data->periodo."</option>"; 
+		}	
+		echo "</select>"; 
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_periodo_FK,$periodo);
 			// add default
@@ -164,7 +198,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
