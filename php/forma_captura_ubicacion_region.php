@@ -7,15 +7,19 @@ CONECTARSE A LA BASE DE DATOS
 *********************************************************************-->
 	<?php
 		// connect to database
-		$host="127.0.0.1";
-		$port=3306;
-		$socket="";
-		$user="root";
-		$password="T4tabox.2";
-		$dbname="paleo_fcb";
+		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 
 <!--********************************************************************
@@ -57,12 +61,23 @@ CONECTARSE A LA BASE DE DATOS
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT region 
-				FROM paleo_fcb.t_region
-				GROUP BY region
-				ORDER BY region ;";
+		$query = "SELECT \"region\" 
+				FROM t_region
+				GROUP BY \"region\"
+				ORDER BY \"region\" ;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+				 $qu = pg_query($db, $query);
+			echo "<option value =NULL>NULL</option>";			
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->region."'>".$data->region."</option>"; 
+		}	
+		echo "</select>";
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -73,7 +88,7 @@ CONECTARSE A LA BASE DE DATOS
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>'; 
 	?>		
 

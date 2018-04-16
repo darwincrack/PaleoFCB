@@ -34,7 +34,7 @@
 		!isset($_POST['orden_texto']) ||
 		!isset($_POST['orden_autor']) ||										
 		!isset($_POST['orden_anio'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	// define el mensaje de error

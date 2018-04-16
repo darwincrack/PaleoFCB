@@ -9,8 +9,20 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
+
+
+			
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -28,7 +40,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 		// require_once 'insertar_valores_edad_continental.php';
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -83,10 +95,23 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_era,era
-				FROM paleo_fcb.t_era;";
+		$query = "SELECT \"id_era\",\"era\"
+				FROM t_era;";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+				echo "<option value = '".$data->id_era."'>".$data->era."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_era,$era);
 			// add default
@@ -97,7 +122,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -121,10 +146,19 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_periodo,periodo
-				FROM paleo_fcb.t_periodo;";
+		$query = "SELECT \"id_periodo\",\"periodo\"
+				FROM t_periodo;";
+				 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+				echo "<option value = '".$data->id_periodo."'>".$data->periodo."</option>"; 
+
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_periodo,$periodo);
 			// add default
@@ -135,7 +169,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -158,21 +192,19 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_epoca,epoca
-				FROM paleo_fcb.t_epoca;";
-		 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
-			$stmt->bind_result($id_epoca,$epoca);
-			// add default
-			// echo "<option value =NULL>NULL</option>";			
-			while ($stmt->fetch()) 
-			 { 
-				echo "<option value = '".$id_epoca."'>".$epoca."</option>"; 
-			 }
-			 echo "</select>"; 
-			$stmt->close();
-		}
+		$query = "SELECT \"id_epoca\",\"epoca\"
+				FROM t_epoca;";
+
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+				echo "<option value = '".$data->id_epoca."'>".$data->epoca."</option>"; 
+
+		}	
+		echo "</select>"; 
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -195,9 +227,22 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT * FROM paleo_fcb.t_edadesmarinas;";
+		$query = "SELECT * FROM t_edadesmarinas;";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+				echo "<option value = '".$data->id_edades_marinas."'>".$data->edad."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_edad,$edad);
 			// add default
@@ -208,7 +253,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -250,20 +295,18 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT * FROM paleo_fcb.t_metodofechamiento;";
+		$query = "SELECT * FROM t_metodofechamiento;";
 		 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
-			$stmt->bind_result($id_metodo_fechamiento,$metodo_fechamiento,$metodo_fechamiento_extra);
-			// add default
-			// echo "<option value =NULL>NULL</option>";			
-			while ($stmt->fetch()) 
-			 { 
-				echo "<option value = '".$id_metodo_fechamiento."'>".$metodo_fechamiento.' ( '.$metodo_fechamiento_extra.' ) '."</option>"; 
-			 }
-			 echo "</select>"; 
-			$stmt->close();
-		}
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->id_metodoFechamiento."'>".$data->metodofechamiento_clave.' ( '.$data->metodofechamiento.' ) '."</option>"; 
+
+		}	
+		echo "</select>";
 		echo '</td>';
 		echo '</tr>';
 	?>
@@ -286,20 +329,19 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT * FROM paleo_fcb.t_materialfechado;";
-		 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
-			$stmt->bind_result($id_material_fechado,$material_fechado,$material_fechado_extra);
-			// add default
-			// echo "<option value =NULL>NULL</option>";			
-			while ($stmt->fetch()) 
-			 { 
-				echo "<option value = '".$id_material_fechado."'>".$material_fechado.' ( '.$material_fechado_extra.' ) '."</option>"; 
-			 }
-			 echo "</select>"; 
-			$stmt->close();
-		}
+		$query = "SELECT * FROM t_materialfechado;";
+
+
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->id_materialfechado."'>".$data->idmf.' ( '.$data->materialFechado.' ) '."</option>"; 
+
+		}	
+		echo "</select>";
 		echo '</td>';
 		echo '</tr>';
 	?>

@@ -15,7 +15,7 @@
 			date_default_timezone_set('America/Monterrey');
 
 			if(!isset($_POST['archivo'])) {
-					died('We are sorry, but there appears to be a 
+					die('We are sorry, but there appears to be a 
 						problem with the form you submitted.');		
 			}
 			$archivo = $_POST['archivo'];

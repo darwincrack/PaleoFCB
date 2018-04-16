@@ -9,8 +9,14 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -20,7 +26,7 @@ DESPLIEGUE DE INSTRUCCIONES
 		require_once 'instrucciones_nota_2.php';	
 
 		if(!isset($_POST['tipo_operacion'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_operacion = $_POST['tipo_operacion'];
@@ -84,12 +90,31 @@ FORMA DE CAPTURA
 		 echo '<td valign="top">';
 		 echo '<select name='.$variable_name.'>'; 
 
+
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT DISTINCT Clase, id_Clase, Autor, Anio 
-					FROM paleo_fcb.t_clase 
-					ORDER BY Clase;";
+		$query = "SELECT DISTINCT \"Clase\", \"id_Clase\", \"Autor\", \"Anio\" 
+					FROM t_clase 
+					ORDER BY \"Clase\";";
+
+
+
+
+		$qu = pg_query($db, $query);
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value =NULL>No Disponible</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->Clase!="" & $data->Clase!="NULL")
+				 {
+					if($clase!='No Disponible'){  
+						echo "<option value = '".$data->id_Clase."'>".$data->Clase.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+					}
+				 }
+
+		}	
+	 echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($clase,$id_clase_FK,$autor,$anio);
 			// add default
@@ -106,7 +131,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<tr>

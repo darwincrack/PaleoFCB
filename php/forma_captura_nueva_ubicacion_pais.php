@@ -8,9 +8,14 @@ CONECTARSE A LA BASE DE DATOS
 	<?php
 		// connect to database
 		require_once 'dbconfig.php';
-		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -59,23 +64,40 @@ FORMA DE CAPTURA
 			$region=$region_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Region) as id_region 
-					FROM paleo_fcb.t_region";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(\"id_Region\") as id_region 
+					FROM t_region";
+
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_region= $data->id_region;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_region);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_region);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada
 			$id_region_FK = $id_region + 1;
-			$query = "INSERT INTO paleo_fcb.t_region 
+			$query = "INSERT INTO t_region 
 					VALUES ('$id_region_FK','$region')";
-			if ($stmt = $con->prepare($query)) {
+
+				$result = pg_query($db,$query);
+		if (!$result) {}
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
-			}					
+			}*/					
 		}		
 	
 	
@@ -102,17 +124,25 @@ FORMA DE CAPTURA
 	****************-->
 	<?php
 		// sacar la FK de la region
-		$query = "SELECT id_region as id_region_FK
-				FROM paleo_fcb.t_region
-				WHERE region = '$region';";		
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_region\" as \"id_region_FK\"
+				FROM t_region
+				WHERE region = '$region';";	
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_region_FK= $data->id_region_FK;
+		}
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_region_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_region_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// nombre que se imprime en html
 		$nombre_combo_box = '<b>2.a </b> Pa&iacute;s:';
 		// define la variable
@@ -126,15 +156,33 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT paleo_fcb.t_pais.pais as pais
-				FROM paleo_fcb.ubicacion_completa, 
-					paleo_fcb.t_pais
-				WHERE  id_pais = paleo_fcb.ubicacion_completa.pais 
-					AND paleo_fcb.ubicacion_completa.Region = '$id_region_FK'
-				GROUP BY pais
-				ORDER BY pais;";
+		$query = "SELECT \"pais\" as pais
+				FROM ubicacion_completa, 
+					t_pais
+				WHERE  id_pais = ubicacion_completa.\"Pais\" 
+					AND ubicacion_completa.\"Region\" = '$id_region_FK'
+				GROUP BY \"pais\"
+				ORDER BY \"pais\";";
+
+
+
+				 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+			echo "<option value ='No Disponible'>No Disponible</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->pais!="" & $data->pais!="NULL")
+			{
+				echo "<option value = '".$data->pais."'>".$data->pais."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -148,7 +196,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>'; 		
 	?>	
 

@@ -61,8 +61,8 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT \"region\" 
 				FROM t_region
-				GROUP BY region
-				ORDER BY region ;";
+				GROUP BY \"region\"
+				ORDER BY \"region\" ;";
 		 
 
 				 $qu = pg_query($db, $query);

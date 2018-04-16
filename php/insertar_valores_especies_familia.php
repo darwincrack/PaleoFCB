@@ -35,7 +35,7 @@
 		!isset($_POST['familia_texto']) ||
 		!isset($_POST['familia_autor']) ||										
 		!isset($_POST['familia_anio'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	// define el mensaje de error

@@ -1,6 +1,6 @@
 <?php
 	// connect to database
-	$host="192.168.1.6";
+	$host="192.168.1.3";
 	$port=5438;
 	$socket="";
 	$user="postgres";

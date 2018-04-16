@@ -43,7 +43,7 @@
 		!isset($_POST['altitud']) ||
 		!isset($_POST['tipo_accion']) ||
 		!isset($_POST['fuente_altitud'])) {
-		died('We are sorry, but there appears to be a problem with 
+		die('We are sorry, but there appears to be a problem with 
 		the form you submitted.');		
 	}
 	// define el mensaje de error

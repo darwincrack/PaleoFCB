@@ -4,8 +4,15 @@
 	// *****************************************************************	
 	// connect to database
 	require_once 'dbconfig.php';
-	$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-		or die ('Could not connect to the database server' . mysqli_connect_error());
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	
 	// *****************************************************************
 	// CARGAR FUNCIONES
@@ -53,7 +60,7 @@
 		!isset($_POST['hab_refugio']) ||
 		!isset($_POST['locomocion']) ||
 		!isset($_POST['status'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	// define el mensaje de error
@@ -148,38 +155,67 @@
 			$clase=$clase_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Clase) as id_clase 
-					FROM paleo_fcb.t_clase";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(\"id_Clase\") as id_clase 
+					FROM t_clase";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_clase= $data->id_clase;
+		}
+
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_clase);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_clase);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada
 			$id_clase_FK = check_key($id_clase);
-			$query = "INSERT INTO paleo_fcb.t_clase 
+			$query = "INSERT INTO t_clase 
 					VALUES ('$id_clase_FK','$clase')";
-			if ($stmt = $con->prepare($query)) {
-				$stmt->execute();
-			}					
+
+		$result = pg_query($db,$query);
+		if (!$result) {}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
+
+
+				
 		}else
 		{
 			// en caso de que el valor SI este en el combo box
 			// sacar el FK
-			$query = "SELECT id_Clase as id_clase_FK 
-					FROM paleo_fcb.t_clase 
+			$query = "SELECT id_Clase as id_clase_fk 
+					FROM t_clase 
 					WHERE Clase = '$clase'";
-			if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_clase_FK= $data->id_clase_fk;
+		}	
+
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_clase_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_clase_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// ***********
@@ -193,37 +229,63 @@
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
 			$query = "SELECT MAX(id_Orden) as id_orden 
-					FROM paleo_fcb.t_orden";
-			if ($stmt = $con->prepare($query)) {
+					FROM t_orden";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_orden= $data->id_orden;
+		}	
+
+
+		/*	if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_orden);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_orden);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada en campo alojamiento
 			$id_orden_FK = check_key($id_orden);
-			$query = "INSERT INTO paleo_fcb.t_orden 
+			$query = "INSERT INTO t_orden 
 								VALUES ('$id_orden_FK','$orden')";
-			if ($stmt = $con->prepare($query)) {
-				$stmt->execute();
-			}					
+
+
+		$result = pg_query($db,$query);
+		if (!$result) {}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
+
 		}else
 		{
 			// en caso de que el valor SI este en el combo box
 			// sacar el FK
-			$query = "SELECT id_Orden as id_orden_FK 
-					FROM paleo_fcb.t_orden 
+			$query = "SELECT id_Orden as id_orden_fk 
+					FROM t_orden 
 					WHERE Orden = '$orden'";
-			if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_orden_FK= $data->id_orden_fk;
+		}
+
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_orden_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_orden_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 		
 		// ***********
@@ -237,37 +299,64 @@
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
 			$query = "SELECT MAX(id_Familia) as id_familia 
-					FROM paleo_fcb.t_familia";
-			if ($stmt = $con->prepare($query)) {
+					FROM t_familia";
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_familia= $data->id_familia;
+		}
+
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_familia);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_familia);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada en campo alojamiento
 			$id_familia_FK = check_key($id_familia);
-			$query = "INSERT INTO paleo_fcb.t_familia 
+			$query = "INSERT INTO t_familia 
 					VALUES ('$id_familia_FK','$familia')";
-			if ($stmt = $con->prepare($query)) {
-				$stmt->execute();
-			}					
+
+					$result = pg_query($db,$query);
+		if (!$result) {}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/
+
+					
 		}else
 		{
 			// en caso de que el valor SI este en el combo box
 			// sacar el FK
-			$query = "SELECT id_Familia as id_familia_FK 
-					FROM paleo_fcb.t_familia 
+			$query = "SELECT id_Familia as id_familia_fk 
+					FROM t_familia 
 					WHERE Familia = '$familia'";
-			if ($stmt = $con->prepare($query)) {
+
+
+					$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_familia_FK= $data->id_familia_fk;
+		}
+		
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_familia_FK);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_familia_FK);
 				}				
 				$stmt->close();
-			}
+			}*/
 		}
 				
 		// ***********
@@ -285,184 +374,300 @@
 			$clave_alojamiento=$clave_alojamiento_texto;
 			// extrae la llave de la ultima insercion que sera la FK
 			// de la tabla de referencias
-			$query = "SELECT MAX(id_Alojamiento) as id_alojamiento 
-					FROM paleo_fcb.t_alojamiento";
-			if ($stmt = $con->prepare($query)) {
+			$query = "SELECT MAX(\"id_Alojamiento\") as id_alojamiento 
+					FROM t_alojamiento";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_alojamiento= $data->id_alojamiento;
+		}
+
+
+
+			/*if ($stmt = $con->prepare($query)) {
 				$stmt->execute();
 				$stmt->bind_result($id_alojamiento);
 				while ($stmt->fetch()) {
 					// printf("%s\n", $id_alojamiento);
 				}				
 				$stmt->close();
-			}
+			}*/
 			// insertar nueva entrada en campo alojamiento
 			$id_alojamiento_FK = check_key($id_alojamiento);
-			$query = "INSERT INTO paleo_fcb.t_alojamiento 
+			$query = "INSERT INTO t_alojamiento 
 					VALUES ('$id_alojamiento_FK','$clave_alojamiento','$alojamiento')";
-			if ($stmt = $con->prepare($query)) {
-				$stmt->execute();
-			}		
+			
+
+		$result = pg_query($db,$query);
+		if (!$result) {}
+
+		/*if ($stmt = $con->prepare($query)) {
+			$stmt->execute();
+		}*/	
 		}
 		// extraer la FK
-		$query = "SELECT id_Alojamiento as id_alojamiento_FK 
-				FROM paleo_fcb.t_alojamiento 
-				WHERE Alojamiento = '$alojamiento'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Alojamiento\" as id_alojamiento_fk 
+				FROM t_alojamiento 
+				WHERE \"Alojamiento\" = '$alojamiento'";
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_alojamiento_FK= $data->id_alojamiento_fk;
+		}
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_alojamiento_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_alojamiento_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 			
 		// ***********
 		// actividad
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Actividad as id_actividad_FK 
-				FROM paleo_fcb.t_actividad 
-				WHERE Actividad = '$actividad'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Actividad\" as id_actividad_fk 
+				FROM t_actividad 
+				WHERE \"Actividad\" = '$actividad'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_actividad_FK= $data->id_actividad_fk;
+		}
+
+				
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_actividad_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_actividad_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// dieta A
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Dieta_A as id_dieta_a_FK 
-				FROM paleo_fcb.t_dietaa 
-				WHERE Dieta_A = '$dieta_a'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Dieta_A\" as id_dieta_a_fk 
+				FROM t_dietaa 
+				WHERE \"Dieta_A\" = '$dieta_a'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_a_FK= $data->id_dieta_a_fk;
+		}
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_dieta_a_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_dieta_a_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// dieta B
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Dieta_B as id_dieta_b_FK 
-				FROM paleo_fcb.t_dietab 
+		$query = "SELECT \"id_Dieta_B\" as id_dieta_b_fk
+				FROM t_dietab 
 				WHERE Dieta_B = '$dieta_b'";
-		if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_dieta_b_FK= $data->id_dieta_b_fk;
+		}
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_dieta_b_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_dieta_b_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// Habito alimenticio A:
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Hab_Alim_A as id_hab_alim_a_FK 
-				FROM paleo_fcb.t_habalima
-				WHERE Hab_Alim_A  = '$hab_alim_a'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Hab_Alim_A\" as id_hab_alim_a_fk 
+				FROM t_habalima
+				WHERE \"Hab_Alim_A\"  = '$hab_alim_a'";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_a_FK= $data->id_hab_alim_a_fk;
+		}
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_hab_alim_a_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_hab_alim_a_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// Habito alimenticio B:
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Hab_Alim_B as id_hab_alim_b_FK 
-				FROM paleo_fcb.t_habalimb
-				WHERE Hab_Alim_B  = '$hab_alim_b'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Hab_Alim_B\" as id_hab_alim_b_fk 
+				FROM t_habalimb
+				WHERE \"Hab_Alim_B\"  = '$hab_alim_b'";
+
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_alim_b_FK= $data->id_hab_alim_b_fk;
+		}
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_hab_alim_b_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_hab_alim_b_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 				
 		// ***********
 		// Habitat refugio
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Hab_Refugio as id_hab_refugio_FK
-				FROM paleo_fcb.t_habrefugio
-				WHERE Hab_Refugio = '$hab_refugio'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Hab_Refugio\" as id_hab_refugio_fk
+				FROM t_habrefugio
+				WHERE \"Hab_Refugio\" = '$hab_refugio'";
+
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_hab_refugio_FK= $data->id_hab_refugio_fk;
+		}
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_hab_refugio_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_hab_refugio_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// Locomocion
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Locomocion as id_locomocion_FK
-				FROM paleo_fcb.t_locomocion
-				WHERE Locomocion = '$locomocion'";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"id_Locomocion\" as id_locomocion_fk
+				FROM t_locomocion
+				WHERE \"Locomocion\" = '$locomocion'";
+
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_locomocion_FK= $data->id_locomocion_fk;
+		}
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_locomocion_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_locomocion_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 
 		// ***********
 		// Status
 		// ***********
 		// extraer la FK
-		$query = "SELECT id_Status as id_status_FK
-				FROM paleo_fcb.t_status
+		$query = "SELECT \"id_Status\" as id_status_fk
+				FROM t_status
 				WHERE Status = '$status'";
-		if ($stmt = $con->prepare($query)) {
+
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_status_FK= $data->id_status_fk;
+		}
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_status_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_status_FK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		
 		// ***********
 		// Especies
 		// ***********		
 		// extrae el ultimo valor del ID en tabla especies
-		$query = "SELECT MAX(id_Especies) as id_especies_PK 
-				 FROM paleo_fcb.especies;";
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT MAX(\"id_Especies\") as id_especies_pk 
+				 FROM especies;";
+
+
+				$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_especies_PK= $data->id_especies_pk;
+		}
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_especies_PK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_especies_PK);
 			}				
 			$stmt->close();
-		}
+		}*/
 		// sumar uno
 		$id_especies_PK = check_key($id_especies_PK);
 		
 		// INSERTA LOS VALORES
-		$query = "INSERT INTO paleo_fcb.especies 
+		$query = "INSERT INTO especies 
 					VALUES ('$id_especies_PK','$subclase','$suborden','$infraorden',
 						'$subfamilia','$genero','$especie','$autor','$sinonimias',
 						'$taxon_valido','$nombre_espaniol','$nombre_ingles',
@@ -470,33 +675,50 @@
 						'$id_dieta_b_FK','$id_hab_alim_a_FK','$id_hab_alim_b_FK',
 						'$id_familia_FK','$id_hab_refugio_FK','$id_locomocion_FK',
 						'$id_orden_FK','$id_status_FK');";	
-		if ($stmt = $con->prepare($query)) {
+		$result = pg_query($db,$query);
+		if (!$result) {}
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
-		}
+		}*/
 		
 		
 		// ***********
 		// TABLA unidadespecie
 		// ***********		
 		// extrae el ultimo valor del ID en tabla especies
-		$query = "SELECT MAX(id_UnidadAnalisis) 
+		$query = "SELECT MAX(\"id_UnidadAnalisis\") 
 				as id_unidad_analisis_FK 
-				FROM paleo_fcb.unidadanalisis;";
-		if ($stmt = $con->prepare($query)) {
+				FROM unidadanalisis;";
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  $id_unidad_analisis_FK= $data->id_UnidadAnalisis;
+		}	
+
+				
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($id_unidad_analisis_FK);
 			while ($stmt->fetch()) {
 				// printf("%s\n", $id_unidad_analisis_FK);
 			}				
 			$stmt->close();
-		}		
+		}	*/	
 				
 		// INSERTA LOS VALORES
-		$query = "INSERT INTO paleo_fcb.unidadespecie 
-					VALUES ('$id_especies_PK','$id_unidad_analisis_FK');";	
-		if ($stmt = $con->prepare($query)) {
+		$query = "INSERT INTO unidadespecie 
+					VALUES ('$id_especies_PK','$id_unidad_analisis_FK');";
+
+			$result = pg_query($db,$query);
+		if (!$result) {}
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
-		}
+		}*/
 		
 		// imprimir mensaje de salida 
 		echo "<br>";

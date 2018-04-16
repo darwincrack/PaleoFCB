@@ -38,7 +38,7 @@
 		!isset($_POST['unidades']) ||	
 		!isset($_POST['id_especies']) ||	
 		!isset($_POST['notas_meristica'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 	}
 	// define el mensaje de error

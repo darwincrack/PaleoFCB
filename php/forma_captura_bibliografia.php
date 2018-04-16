@@ -8,9 +8,16 @@ CONECTARSE A LA BASE DE DATOS
 	<?php
 		// connect to database
 		require_once 'dbconfig.php';
-		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+				$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -108,10 +115,24 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Tipo_Referencia as result
-					FROM paleo_fcb.t_tiporeferencia;";
+		$query = "SELECT \"Tipo_Referencia\" as result
+					FROM t_tiporeferencia;";
+
+
+		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+
+		}	
+		echo "</select>"; 
+
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -122,7 +143,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 

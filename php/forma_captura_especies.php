@@ -9,8 +9,14 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+					$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error 0: " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -26,7 +32,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	
 		// validation expected data exists
 		if(!isset($_POST['tipo_edad'])) {
-			died('We are sorry, but there appears to be a 
+			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		// define el mensaje de error
@@ -72,25 +78,20 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT DISTINCT Clase, id_Clase, Autor, Anio 
-					FROM paleo_fcb.t_clase 
-					ORDER BY Clase;";
+		$query = "SELECT \"Clase\", \"id_Clase\", \"Autor\", \"Anio\" 
+					FROM t_clase 
+					WHERE \"id_Clase\" = $id_clase_FK;";
 		 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
-			$stmt->bind_result($clase,$id_clase_FK,$autor,$anio);
-			// add default
-			echo "<option value =NULL>NULL</option>";
-			while ($stmt->fetch()) 
-			 { 
-				 if ($clase!="" & $clase!="NULL")
-				 {
-				echo "<option value = '".$id_clase_FK."'>".$clase.' ('.$autor.' - '.$anio.') '."</option>"; 
-				 }
-			 }
+			$qu = pg_query($db, $query);
+
+			while ($data = pg_fetch_object($qu)) 
+			{
+			   if ($data->Clase!="" & $data->Clase!="NULL")
+							 {
+							echo "<option value = '".$data->id_Clase."'>".$data->Clase.' '.$data->Autor.' '.$data->Anio.' '."</option>"; 
+							 }
+			}	
 			 echo "</select>"; 
-			$stmt->close();
-		} 
 	?>	
 
 	<tr>
@@ -123,12 +124,24 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Subclase
-					FROM paleo_fcb.especies 
+		$query = "SELECT \"Subclase\" as result
+					FROM especies 
 					GROUP BY Subclase
 					ORDER BY Subclase;";
+				 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -142,7 +155,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		//echo "<br>"; 
@@ -178,12 +191,27 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Orden
-					FROM paleo_fcb.t_orden 
+		$query = "SELECT \"Orden\" as result
+					FROM t_orden 
 					GROUP BY Orden
 					ORDER BY Orden;";
+
+
+						 $qu = pg_query($db, $query);
+	// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -197,7 +225,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<tr>
@@ -230,12 +258,24 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Suborden
-					FROM paleo_fcb.especies
+		$query = "SELECT \"Suborden\" as result
+					FROM especies
 					GROUP BY Suborden
 					ORDER BY Suborden;";
+
+								 $qu = pg_query($db, $query);
+	// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -249,7 +289,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		// echo "<br>"; 
@@ -284,12 +324,27 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Infraorden
-					FROM paleo_fcb.especies
+		$query = "SELECT \"Infraorden\" as result
+					FROM especies
 					GROUP BY Infraorden 
 					ORDER BY Infraorden;";
+
+
+								 $qu = pg_query($db, $query);
+	// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -303,7 +358,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		// echo "<br>"; 
@@ -339,12 +394,29 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Familia
-					FROM paleo_fcb.t_familia
-					GROUP BY Familia
-					ORDER BY Familia;";
+		$query = "SELECT \"Familia\" as result
+					FROM t_familia
+					GROUP BY \"Familia\"
+					ORDER BY \"Familia\";";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+		$qu = pg_query($db, $query);
+	// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -358,7 +430,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		} 
+		} */
 	?>	
 
 	<tr>
@@ -391,12 +463,27 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Subfamilia
-					FROM paleo_fcb.especies
-					GROUP BY Subfamilia
-					ORDER BY Subfamilia;";
+		$query = "SELECT \"Subfamilia\" as result
+					FROM especies
+					GROUP BY \"Subfamilia\"
+					ORDER BY \"Subfamilia\";";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+		 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -410,7 +497,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 
@@ -445,12 +532,26 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Genero
-					FROM paleo_fcb.especies 
-					GROUP BY Genero
-					ORDER BY Genero;";
+		$query = "SELECT \"Genero\" as result
+					FROM especies 
+					GROUP BY \"Genero\"
+					ORDER BY \"Genero\";";
+
+				 $qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -464,7 +565,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 
@@ -499,12 +600,28 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Especie
-					FROM paleo_fcb.especies 
-					GROUP BY Especie
-					ORDER BY Especie;";
+		$query = "SELECT \"Especie\" as result
+					FROM especies 
+					GROUP BY \"Especie\"
+					ORDER BY \"Especie\";";
 		 
-		if ($stmt = $con->prepare($query)) {
+
+
+		$qu = pg_query($db, $query);
+			// add default
+			echo "<option value =NULL>NULL</option>";
+		while ($data = pg_fetch_object($qu)) 
+		{
+			if ($data->result!="" & $data->result!="NULL")
+			{
+				echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+			}	
+		}	
+		echo "</select>"; 
+
+
+
+	/*	if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -518,7 +635,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 
@@ -638,12 +755,23 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Actividad 
-					FROM paleo_fcb.t_actividad;";
-		 
-		if ($stmt = $con->prepare($query)) {
+		$query = "SELECT \"Actividad\"  as result
+					FROM t_actividad;";
+		 		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
+
+
+
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
+
+
 			// add default
 			// echo "<option value =NULL>NULL</option>";			
 			while ($stmt->fetch()) 
@@ -652,7 +780,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 
 	<!-- **************
@@ -673,10 +801,19 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Dieta_A 
-				  FROM paleo_fcb.t_dietaa;";
+		$query = "SELECT \"Dieta_A\"  as result
+				  FROM t_dietaa;";
+
+
+				  		 		 $qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -687,7 +824,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 	
 
@@ -709,9 +846,17 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Dieta_B FROM paleo_fcb.t_dietab;";
+		$query = "SELECT \"Dieta_B\" as result FROM t_dietab;";
+		
+
+		$qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -722,7 +867,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 	
 
@@ -744,9 +889,16 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Hab_Alim_A FROM paleo_fcb.t_habalima;";
+		$query = "SELECT \"Hab_Alim_A\" as result FROM t_habalima;";
+		
+		$qu = pg_query($db, $query); 
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -757,7 +909,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 	
 
@@ -779,9 +931,16 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Hab_Alim_B FROM paleo_fcb.t_habalimb;";
+		$query = "SELECT \"Hab_Alim_B\" as result FROM t_habalimb;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
+		 
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -792,7 +951,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 
 	<!-- **************
@@ -813,9 +972,16 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Hab_Refugio FROM paleo_fcb.t_habrefugio;";
+		$query = "SELECT \"Hab_Refugio\" as result FROM t_habrefugio;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
+		 
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -826,7 +992,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 	
 	<!-- **************
@@ -847,9 +1013,16 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Locomocion FROM paleo_fcb.t_locomocion;";
+		$query = "SELECT \"Locomocion\"  as result FROM t_locomocion;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
+		 
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -860,7 +1033,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 
 
@@ -884,9 +1057,15 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Status FROM paleo_fcb.t_status;";
+		$query = "SELECT \"Status\" as result FROM t_status;";
+		 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -897,7 +1076,7 @@ FORMA DE CAPTURA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 	?>
 
 
@@ -923,25 +1102,29 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT Alojamiento 
-				FROM paleo_fcb.t_alojamiento
+		$query = "SELECT \"Alojamiento\" as result 
+				FROM t_alojamiento
 				ORDER BY Alojamiento;";
 		 
-		if ($stmt = $con->prepare($query)) {
+		 $qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->result."'>".$data->result."</option>"; 
+		}	
+		echo "</select>"; 
+		 
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
-			echo "<option value =NULL>NULL</option>";
+			// echo "<option value =NULL>NULL</option>";			
 			while ($stmt->fetch()) 
 			 { 
-				 if ($result!="" & $result!="NULL")
-				 {
-					echo "<option value = '".$result."'>".$result."</option>";  
-				 }
+				echo "<option value = '".$result."'>".$result."</option>"; 
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</td>';
 		echo '</tr>';
 		echo "<br>"; 

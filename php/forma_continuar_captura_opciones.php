@@ -5,7 +5,7 @@
 
 	// validation expected data exists
 	if( !isset($_POST['ID_REF']) ) {
-		died('We are sorry, but there appears to be a problem with 
+		die('We are sorry, but there appears to be a problem with 
 		the form you submitted.');		
 	}
 	// define el mensaje de error

@@ -7,15 +7,19 @@ CONECTARSE A LA BASE DE DATOS
 *********************************************************************-->
 	<?php
 		// connect to database
-		$host="127.0.0.1";
-		$port=3306;
-		$socket="";
-		$user="root";
-		$password="T4tabox.2";
-		$dbname="paleo_fcb";
+		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+		$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 
 <!--********************************************************************
@@ -80,22 +84,23 @@ BIBLIOGRAFIA COMPLETA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT region 
-				FROM paleo_fcb.t_region
+		$query = "SELECT \"region\" 
+				FROM t_region
+				GROUP BY region
 				ORDER BY region ;";
 		 
-		if ($stmt = $con->prepare($query)) {
-			$stmt->execute();
-			$stmt->bind_result($result);
-			// add default
-			// echo "<option value =NULL>NULL</option>";			
-			while ($stmt->fetch()) 
-			 { 
-				echo "<option value = '".$result."'>".$result."</option>"; 
-			 }
-			 echo "</select>"; 
-			$stmt->close();
-		}
+
+				 $qu = pg_query($db, $query);
+			echo "<option value =NULL>NULL</option>";			
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+			echo "<option value = '".$data->region."'>".$data->region."</option>"; 
+		}	
+		echo "</select>"; 
+
+		 
+
 		echo '</tr>'; 
 	?>		
 -->
@@ -118,11 +123,20 @@ BIBLIOGRAFIA COMPLETA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT pais 
-				FROM paleo_fcb.t_pais
-				ORDER BY pais ;";
+		$query = "SELECT \"pais\" 
+				FROM t_pais
+				ORDER BY \"pais\" ;";
+		
+		$qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->pais."'>".$data->pais."</option>";  
+
+		}	
+		echo "</select>"; 
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -133,7 +147,7 @@ BIBLIOGRAFIA COMPLETA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>'; 		
 	?>	
 
@@ -155,11 +169,22 @@ BIBLIOGRAFIA COMPLETA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT estado 
-				FROM paleo_fcb.t_estado
+		$query = "SELECT \"estado\" as result 
+				FROM t_estado
 				ORDER BY estado ;";
+
+				$qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->result."'>".$data->result."</option>";  
+
+		}	
+		echo "</select>"; 
+
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -170,7 +195,7 @@ BIBLIOGRAFIA COMPLETA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>';
 	?>	
 </table>
@@ -193,12 +218,24 @@ BIBLIOGRAFIA COMPLETA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT municipio_prov 
-				FROM paleo_fcb.t_municipioprov
-				GROUP BY municipio_prov 
-				ORDER BY municipio_prov ;";
+		$query = "SELECT \"municipio_prov\"  as result
+				FROM t_municipioprov
+				GROUP BY \"municipio_prov\" 
+				ORDER BY \"municipio_prov\" ;";
+
+
+
+				$qu = pg_query($db, $query);
+		while ($data = pg_fetch_object($qu)) 
+		{
+
+			echo "<option value = '".$data->result."'>".$data->result."</option>";  
+
+		}	
+		echo "</select>"; 
+
 		 
-		if ($stmt = $con->prepare($query)) {
+		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
 			$stmt->bind_result($result);
 			// add default
@@ -209,7 +246,7 @@ BIBLIOGRAFIA COMPLETA
 			 }
 			 echo "</select>"; 
 			$stmt->close();
-		}
+		}*/
 		echo '</tr>';
 	?>	
 

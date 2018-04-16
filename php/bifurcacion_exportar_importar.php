@@ -1,7 +1,7 @@
 <?php
 	// validation expected data exists
 	if(!isset($_POST['tipo_accion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
 	$tipo_accion = $_POST['tipo_accion'];

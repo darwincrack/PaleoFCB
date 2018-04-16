@@ -9,8 +9,14 @@ CONECTARSE A LA BASE DE DATOS
 		// connect to database
 		require_once 'dbconfig.php';
 		// check connection
-		$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
-			or die ('Could not connect to the database server' . mysqli_connect_error());
+				$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+
+	 	$db = pg_connect($conn_string);
+	    if(!$db){
+	        $errormessage=pg_last_error();
+	        echo "Error : " . $errormessage;
+	        exit();
+	    }
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -21,7 +27,7 @@ DESPLIEGUE DE INSTRUCCIONES
 		
 		// validation expected data exists
 		if( !isset($_POST['id_especies'])) {
-			died('We are sorry, but there appears to be a problem with the form you submitted.');		
+			die('We are sorry, but there appears to be a problem with the form you submitted.');		
 		}
 		// define el mensaje de error
 		require_once 'error_message.php';

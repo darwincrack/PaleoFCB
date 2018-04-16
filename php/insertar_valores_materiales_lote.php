@@ -36,7 +36,7 @@
 		!isset($_POST['alojamiento_texto']) ||
 		!isset($_POST['clave_alojamiento_texto']) ||
 		!isset($_POST['materiales_lote_descripcion'])) {
-		died('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a 
 				problem with the form you submitted.');		
 	}
 	// define el mensaje de error
