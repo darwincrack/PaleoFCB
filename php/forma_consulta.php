@@ -29,7 +29,7 @@
 
 	<center>
 	<!--**************************************-->
-	<h2>INSERTA LA CONSULTA EN FORMATO MYSQL</h2>	
+	<h2>INSERTA LA CONSULTA EN FORMATO PostgreSQL</h2>	
 	<!--**************************************-->
 	</center>
 	
@@ -39,8 +39,8 @@
 	
 	Bienvenido a la p&aacute;gina de consulta de la base de datos. Para realizar una consulta.
 	S&oacute;lo tiene que escribirla en el cuadro de texto. Recuerde que la consulta tiene 
-	que hacerse en formato MySQL. Para informaci&oacute;n al respecto,
-	<a href="http://www.nachocabanes.com/sql/curso/sql01.php"> leer breve introducci&oacute;n</a>. 
+	que hacerse en formato PostgreSQL. Para informaci&oacute;n al respecto,
+	<a href="https://www.postgresql.org/docs/10/static/index.html"> leer breve introducci&oacute;n</a>. 
 	<br><br>
 	Por ejemplo, si el usuario desea observar los primeros 50 registros de especies en la base de datos
 	(tabla ESPECIES). Escriba en la consulta: <strong>SELECT *  FROM especies LIMIT 50</strong>

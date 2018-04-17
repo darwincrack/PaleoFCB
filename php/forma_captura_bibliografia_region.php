@@ -21,6 +21,19 @@ CONECTARSE A LA BASE DE DATOS
 		// check connection
 		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
 			or die ('Could not connect to the database server' . mysqli_connect_error());*/
+
+
+		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
+		$query = 'SELECT count(*) as conteo  FROM t_agente;';
+
+		$qu = pg_query($db, $query);
+
+		while ($data = pg_fetch_object($qu)) 
+		{
+		  echo "conteo: ".$conteo= $data->conteo;
+		}
+
+
 	?>
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
@@ -91,6 +104,14 @@ FORMA DE CAPTURA
 		 echo '</td>';
 		 echo '<td valign="top">';
 		 
+
+
+
+
+
+
+
+
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = 'SELECT *  FROM t_tiporeferencia;';

@@ -130,17 +130,17 @@ FORMA DE CAPTURA
 			// insertar nueva entrada
 
 			$id_region_FK = $id_region + 1;
-			$query = "INSERT INTO paleo_fcb.t_region 
+			$query = "INSERT INTO t_region 
 					VALUES ('$id_region_FK','$region')";
 
 
-			$result = pg_query($db,$query);
+			$result = @pg_query($db,$query);
 			if (!$result) {
-				die(
+				/*echo (
 				"<strong>ERROR:</strong> Hubo un error con la consulta, intente de nuevo por favor. 
 				<br>
 				<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
-				);
+				);*/
 			}
 
 

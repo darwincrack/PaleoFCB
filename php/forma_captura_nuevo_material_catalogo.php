@@ -352,7 +352,7 @@ FORMA DE CAPTURA
 		 echo '<select name='.$variable_name.'>'; 
 
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
-		$query = "SELECT id_Agente,Agente,id_ag 
+		$query = "SELECT \"id_Agente\",\"Agente\",\"id_ag\" 
 					FROM t_agente;";
 		 
 		 $qu = pg_query($db, $query);
@@ -539,7 +539,7 @@ FORMA DE CAPTURA
 		// DEFINE QUERY PARA DESPLEGAR EL COMBO BOX
 		$query = "SELECT \"Alojamiento\" 
 				FROM t_alojamiento
-				ORDER BY Alojamiento;";
+				ORDER BY \"Alojamiento\";";
 		
 		 $qu = pg_query($db, $query);
 
