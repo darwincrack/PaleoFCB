@@ -87,7 +87,7 @@ $values = pg_query("SELECT * FROM ".$table."");
   
 
 foreach ($rowr as $key => $value) {
- $csv_output .= "\"".$value."\"".$col_separator;
+ $csv_output .= "\"".utf8_decode($value)."\"".$col_separator;
 }
 
 $csv_output .= "\n";
