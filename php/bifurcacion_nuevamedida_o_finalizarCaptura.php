@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?>  
 <?php
 	
 	// extrae valores del formulario
@@ -31,6 +32,8 @@
 		require_once 'insertar_valores_meristica.php';		
 	}
 
-?>
+									    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 
 <tr><td> <input type="hidden" name="tipo_operacion" value="<?= $tipo_operacion ?>" ></td></tr>

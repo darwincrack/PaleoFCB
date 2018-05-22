@@ -1,9 +1,10 @@
+<?php include("post_data_informacion.php"); ?>
 <form name="Captura de datos" method="post" action="forma_captura_ubicacion_estado.php">
 <!-- <IMG SRC="images/banner_2.png" ALT="banner" WIDTH=1267 HEIGHT=443> -->
 <table width="600px">
 
 <!--********************************************************************
-CONECTARSE A LA BASE DE DATOS
+CONECTARSE A LA BASE DE DATOS 
 *********************************************************************-->
 	<?php
 		// connect to database
@@ -27,13 +28,12 @@ CONECTARSE A LA BASE DE DATOS
 INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 *********************************************************************-->
 	<?php
-	
+			
 		if(!isset($_POST['tipo_accion'])) {
 			die('We are sorry, but there appears to be a 
 			problem with the form you submitted.');		
 		}
 		$tipo_accion = $_POST['tipo_accion'];
-	
 		if ($tipo_accion =='continuar_ubicacion')
 		{
 			if(!isset($_POST['ID_REF'])) {
@@ -43,10 +43,16 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 			// define el mensaje de error
 			require_once 'error_message.php';
 			$ID_REF = $_POST['ID_REF'];
+
 			//echo $ID_REF;
-		}else{
-			require_once 'insertar_valores_bibliografia.php';;
-		}				
+		}else{	
+				require_once 'insertar_valores_bibliografia.php';
+				include("guardar_ubicacion_actual.php");
+			
+		}
+
+
+					
 		
 		//echo $tipo_accion;
 		//echo $id_Ubicacion;
@@ -59,6 +65,7 @@ INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 	?>
 	
 <tr><td> <input type="hidden" name="ID_REF" value="<?= $ID_REF ?>" ></td></tr>
+<tr><td> <input type="hidden" name="referencia" value="<?= $referencia ?>" ></td></tr>
 <tr><td> <input type="hidden" name="tipo_accion" value="<?= $tipo_accion ?>" ></td></tr>
 <tr><td> <input type="hidden" name="tipo_operacion" value="<?= $tipo_operacion ?>" ></td></tr>
 	

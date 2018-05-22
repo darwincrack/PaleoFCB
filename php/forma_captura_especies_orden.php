@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?> 
 <form name="Captura de datos" method="post" action="forma_captura_especies_suborden.php">
 <!-- <IMG SRC="images/banner_2.png" ALT="banner" WIDTH=1267 HEIGHT=443> -->
 <table width="800px">
@@ -21,7 +22,9 @@ CONECTARSE A LA BASE DE DATOS
 	        echo "Error 0: " . $errormessage;
 	        exit();
 	    }	
+					    	include("guardar_ubicacion_actual.php");
 	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
 *********************************************************************-->

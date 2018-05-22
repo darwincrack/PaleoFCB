@@ -1,6 +1,9 @@
+<?php include("post_data_informacion.php"); ?> 
+
 <?php
+/*quede aqui*/
 	// validation expected data exists
-	if(!isset($_POST['tipo_accion'])) {
+	if(!isset($_POST['tipo_accion'])) { 
 		die('We are sorry, but there appears to be a 
 		problem with the form you submitted.');		
 	}
@@ -32,7 +35,9 @@
 	// Id_Especie
 	//$id_Especies = $_POST['id_Especies'];	
 	// echo $id_Especies;
-?>
+			    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 
 <tr><td> <input type="hidden" name="id_especies" value="<?= $id_Especies ?>" ></td></tr>
 <tr><td> <input type="hidden" name="tipo_operacion" value="<?= $tipo_operacion ?>" ></td></tr>

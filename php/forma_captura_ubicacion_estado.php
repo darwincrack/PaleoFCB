@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?>
 <form name="Captura de datos" method="post" action="forma_captura_ubicacion_municipio.php">
 <!-- <IMG SRC="images/banner_2.png" ALT="banner" WIDTH=1267 HEIGHT=443> -->
 <table width="600px">
@@ -8,6 +9,7 @@ CONECTARSE A LA BASE DE DATOS
 	<?php
 		// connect to database
 		require_once 'dbconfig.php';
+		
 		// check connection
 		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
 			or die ('Could not connect to the database server' . mysqli_connect_error());*/
@@ -21,7 +23,10 @@ CONECTARSE A LA BASE DE DATOS
         exit();
     }	
 
+	include("guardar_ubicacion_actual.php");
+	
 	?>
+	<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 <!--********************************************************************
 DESPLIEGUE DE INSTRUCCIONES
 *********************************************************************-->
@@ -124,7 +129,7 @@ FORMA DE CAPTURA
 			$qu = pg_query($db, $query);
 
 			while ($data = pg_fetch_object($qu)) {
-  				$id_pais= $data->id_Pais;
+  				$id_pais= $data->id_pais;
 			}
 
 		/*	pg_free_result($qu);

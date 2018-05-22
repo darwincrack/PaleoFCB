@@ -66,7 +66,7 @@ DESPLIEGUE DE INSTRUCCIONES
 		$query = 'SELECT  R."id_ReferenciaBibliografica" AS ID_REF, 
 							TR."Referencia" AS Referencia
 					FROM referenciabibliografica R 
-						 JOIN t_referencia TR ON R."id_Referencia" = TR."id_Referencia";';
+						 JOIN t_referencia TR ON R."id_Referencia" = TR."id_Referencia" WHERE R."id_ReferenciaBibliografica" >385 order by R."id_ReferenciaBibliografica" desc;';
 
 
 
@@ -79,7 +79,6 @@ DESPLIEGUE DE INSTRUCCIONES
 			);
 		}
 
-		echo "<option value =NULL>NULL</option>";
 		while($row = pg_fetch_array($result, NULL, PGSQL_ASSOC))
 		{
 				 if ($row['id_ref']!="" & $row['id_ref']!="NULL")

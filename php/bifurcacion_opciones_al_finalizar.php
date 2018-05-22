@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?> 
 <?php
 	// validation expected data exists
 	if(!isset($_POST['tipo_accion'])) {
@@ -54,4 +55,6 @@
 		require_once 'forma_captura_nueva_ubicacion.php';
 	}
 
-?>
+										    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >

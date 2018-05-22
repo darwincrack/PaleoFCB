@@ -2,9 +2,8 @@
 	// *****************************************************************
 	// CONECTARSE A LA BASE DE DATOS
 	// *****************************************************************	
-	// connect to database
+	// connect to database 
 	require_once 'dbconfig.php';
-
 
 	$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
 
@@ -115,11 +114,9 @@
 			<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
 			);
 		}
-
 		if($row = pg_fetch_array($result, NULL, PGSQL_ASSOC)){
 			$id_tipo_referencia  = $row['id_Tipo_Referencia'];
 		}
-	
 
 		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();
@@ -189,8 +186,7 @@
 						$anio,
 						$id_referencia_FK,
 						$id_tipo_referencia);";
-
-
+						
 
 				$result = pg_query($db,$query);
 
@@ -201,7 +197,9 @@
 				<br>
 				<a href='http://127.0.0.1/paleoFCB/php/forma_consulta_bibliografia.php'>Regresar al men&uacute; para consultar datos</a>"			
 				);
-			}		
+			}	
+	
+
 
 		/*if ($stmt = $con->prepare($query)) {
 			$stmt->execute();

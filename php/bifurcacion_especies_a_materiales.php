@@ -1,7 +1,8 @@
+<?php include("post_data_informacion.php"); ?> 
 <?php
 	// validation expected data exists
 	if(!isset($_POST['tipo_medidas'])) {
-		die('We are sorry, but there appears to be a 
+		die('We are sorry, but there appears to be a  
 		problem with the form you submitted.');		
 	}
 	$tipo_medidas = $_POST['tipo_medidas'];
@@ -23,6 +24,8 @@
 		// option 2
 		require_once 'forma_captura_materiales_lote.php';		
 	}	
-?>
+								    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 
 <tr><td> <input type="hidden" name="tipo_operacion" value="<?= $tipo_operacion ?>" ></td></tr>

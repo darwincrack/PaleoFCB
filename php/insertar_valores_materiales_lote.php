@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?> 
 <form name="Captura de datos" method="post" action="bifurcacion_opciones_al_finalizar.php">
 
 <?php
@@ -16,7 +17,11 @@
 	        echo "Error : " . $errormessage;
 	        exit();
 	    }	
-	
+										    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
+
+		<?php
 	// *****************************************************************
 	// CARGAR FUNCIONES
 	// *****************************************************************

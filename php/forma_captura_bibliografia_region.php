@@ -55,6 +55,13 @@ FORMA DE CAPTURA
 
 	<!--**************************************-->
 	<h2>INSERTA LA BIBLIOGRAFIA COMPLETA</h2>
+	<?php
+if(isset($_GET["ERROR_1"]))
+{
+	echo "<h4 style=\"color:red;\">La biografia insertada ya existe en sistema</h4>";
+}
+
+	?>
 	<!--**************************************-->
 
 	<br>

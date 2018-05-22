@@ -1,7 +1,8 @@
+<?php include("post_data_informacion.php"); ?>
 <form name="Captura de datos" method="post" action="forma_captura_unidad_analisis.php">
 <!-- <IMG SRC="images/banner_2.png" ALT="banner" WIDTH=1267 HEIGHT=443> -->
 <table width="600px">
-
+  
 <!--********************************************************************
 CONECTARSE A LA BASE DE DATOS
 *********************************************************************-->
@@ -19,8 +20,11 @@ CONECTARSE A LA BASE DE DATOS
 	    }	
 		/*$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
 			or die ('Could not connect to the database server' . mysqli_connect_error());*/
-	?>
 	
+    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
+		
 <!--********************************************************************
 INSERTA LOS VALORES DEL FORMULARIO ANTERIOR
 *********************************************************************-->

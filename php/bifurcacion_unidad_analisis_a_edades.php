@@ -1,3 +1,4 @@
+<?php include("post_data_informacion.php"); ?>
 <?php
 	// validation expected data exists
 	if(!isset($_POST['tipo_edad'])) {
@@ -24,6 +25,9 @@
 		// option 2
 		require_once 'forma_captura_edad_maritima_era.php';		
 	}
-?>
+
+    	include("guardar_ubicacion_actual.php");
+	?>
+		<input type="hidden" name="referencia" value="<?= $referencia ?>" >
 
 <tr><td> <input type="hidden" name="tipo_operacion" value="<?= $tipo_operacion ?>" ></td></tr>
